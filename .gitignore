@@ -1,12 +1,37 @@
-
-.env
-.venv/
+# Python cache
 __pycache__/
 *.py[cod]
-*.log
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Environment / secrets
+.env
+.env.*
+instance/
+
+# Logs
 logs/
+*.log
+
+# Database / SQL backup files
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Mac system files
 .DS_Store
-security_phase1_backup/
-complete_seo_backup/
-*_backup/
-*.zip
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# Testing / cache
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
