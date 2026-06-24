@@ -1,0 +1,162 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+Booking Confirmed | Capture Pakistan
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-checkout.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="success-page">
+
+  <div class="page-container">
+
+    <div class="success-card">
+
+      <div class="success-icon">
+        ✓
+      </div>
+
+      <span class="success-eyebrow">
+        Reservation Received
+      </span>
+
+      <h1>Your Booking Request Is Confirmed!</h1>
+
+      <p class="success-intro">
+        Thank you, {{ booking.customer_name }}.
+        Our team has received your booking and will
+        contact you on WhatsApp or email to share
+        the remaining tour and payment details.
+      </p>
+
+      <div class="success-reference">
+
+        <span>Booking Reference</span>
+
+        <strong>
+          {{ booking.booking_number }}
+        </strong>
+
+      </div>
+
+      <div class="success-details">
+
+        <div>
+          <small>Tour</small>
+          <strong>{{ booking.tour.title }}</strong>
+        </div>
+
+        <div>
+          <small>Travel Date</small>
+          <strong>
+            {{ booking.travel_date.strftime("%d %B %Y") }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Travelers</small>
+          <strong>
+            {{ booking.total_travelers }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Total Amount</small>
+          <strong>
+            PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Payment Method</small>
+
+          <strong>
+            {% if booking.payment_method == "online_card" %}
+              Online Card Payment
+            {% else %}
+              Cash on Pickup
+            {% endif %}
+          </strong>
+        </div>
+
+        <div>
+          <small>Current Status</small>
+          <strong>Pending Team Confirmation</strong>
+        </div>
+
+      </div>
+
+      {% if booking.payment_method == "online_card" %}
+
+        <div class="success-message-box">
+
+          <span>▣</span>
+
+          <p>
+            You selected online card payment.
+            Our team will share secure payment
+            instructions with you.
+          </p>
+
+        </div>
+
+      {% else %}
+
+        <div class="success-message-box">
+
+          <span>₨</span>
+
+          <p>
+            You selected cash on pickup.
+            Our team will confirm the pickup and
+            payment arrangements with you.
+          </p>
+
+        </div>
+
+      {% endif %}
+
+      <div class="success-actions">
+
+        <a
+          href="{{ url_for(
+             'customer.booking_detail',
+  booking_number=booking.booking_number
+          ) }}"
+          class="success-primary"
+        >
+          View My Booking
+        </a>
+
+        <a
+          href="{{ url_for('customer.booking_invoice', booking_number=booking.booking_number) }}"
+          class="success-secondary"
+        >
+          Download Invoice PDF
+        </a>
+
+        <a
+          href="{{ url_for('public.public_tours') }}"
+          class="success-secondary"
+        >
+          Explore More Tours
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+#capturePakistanFooter{--footer-gold:#f0b83f;background:linear-gradient(90deg,#002d22,#004230);color:#fff;padding-top:46px;font-family:"DM Sans",sans-serif}
+#capturePakistanFooter,#capturePakistanFooter *{box-sizing:border-box}
+#capturePakistanFooter .container{width:min(1180px,92%);margin-inline:auto}
+#capturePakistanFooter .footer-grid{display:grid;grid-template-columns:1.25fr .85fr 1fr 1.2fr 1.1fr;gap:36px;padding-bottom:34px}
+#capturePakistanFooter .footer-about img{display:block;width:155px;height:80px;object-fit:contain;margin-bottom:12px}
+#capturePakistanFooter h3{margin:0 0 14px;color:#fff;font-size:14px;font-weight:700}
+#capturePakistanFooter a{text-decoration:none}
+#capturePakistanFooter .footer-grid>div:not(.footer-about)>a{display:block;width:fit-content;color:#d9e8e2;font-size:11px;margin:7px 0}
+#capturePakistanFooter .footer-grid>div:not(.footer-about)>a:hover{color:var(--footer-gold)}
+#capturePakistanFooter .footer-grid p{color:#d9e8e2;font-size:11px;line-height:1.55;margin:7px 0}
+#capturePakistanFooter .footer-grid p i{color:var(--footer-gold);margin-right:7px}
+#capturePakistanFooter .footer-grid p a{color:#d9e8e2}
+#capturePakistanFooter .footer-grid p a:hover{color:var(--footer-gold)}
+#capturePakistanFooter .socials{display:flex;gap:10px;margin-top:14px}
+#capturePakistanFooter .socials a{width:28px;height:28px;display:grid;place-items:center;margin:0;border:1px solid rgba(255,255,255,.3);border-radius:50%;color:#fff;font-size:11px}
+#capturePakistanFooter .socials a:hover{color:#183127;border-color:var(--footer-gold);background:var(--footer-gold)}
+#capturePakistanFooter .newsletter input{width:100%;height:40px;margin:8px 0;padding:0 12px;border:1px solid rgba(255,255,255,.28);border-radius:7px;color:#fff;background:transparent;outline:none;font:inherit;font-size:11px}
+#capturePakistanFooter .newsletter input::placeholder{color:rgba(255,255,255,.58)}
+#capturePakistanFooter .newsletter input:focus{border-color:var(--footer-gold)}
+#capturePakistanFooter .btn{display:inline-flex;align-items:center;justify-content:center;gap:11px;border:0;border-radius:10px;font-weight:700;transition:.25s ease}
+#capturePakistanFooter .newsletter .btn{width:100%;padding:11px}
+#capturePakistanFooter .btn-gold{color:#183127;background:var(--footer-gold);cursor:pointer}
+#capturePakistanFooter .btn-gold:hover{background:#ffc85d;transform:translateY(-2px)}
+#capturePakistanFooter .footer-bottom{padding:14px 0;border-top:1px solid rgba(255,255,255,.12)}
+#capturePakistanFooter .footer-bottom .container{display:flex;justify-content:space-between;color:#d6e3de;font-size:10px}
+#capturePakistanFooter .footer-bottom p{margin:0;color:#d6e3de;font-size:10px}
+#capturePakistanFooter .footer-bottom span{color:#ff6d6d}
+@media(max-width:900px){#capturePakistanFooter .footer-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){#capturePakistanFooter .footer-grid{grid-template-columns:1fr}#capturePakistanFooter .footer-bottom .container{flex-direction:column;gap:5px;text-align:center}}

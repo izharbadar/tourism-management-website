@@ -1,0 +1,461 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+{{ customer.name }}
+{% endblock %}
+
+{% block page_title %}
+Customer Details
+{% endblock %}
+
+{% block page_subtitle %}
+Review customer contact information, bookings and inquiries
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-customers.css') }}"
+>
+
+{% endblock %}
+
+{% block top_actions %}
+
+<a
+  href="{{ url_for('admin.customers') }}"
+  class="secondary-button"
+>
+  ← Back to Customers
+</a>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="customer-profile-hero">
+
+  <div class="customer-profile-main">
+
+    <span class="customer-profile-avatar">
+      {{ customer.name[0] | upper }}
+    </span>
+
+    <div>
+
+      <span class="customer-profile-label">
+        Registered Customer
+      </span>
+
+      <h2>{{ customer.name }}</h2>
+
+      <p>
+        {{ customer.email }}
+        {% if customer.phone %}
+          · {{ customer.phone }}
+        {% endif %}
+      </p>
+
+      <div class="customer-profile-meta">
+
+        <span>
+          Customer #{{ customer.id }}
+        </span>
+
+        <span>
+          Joined
+          {{ customer.created_at.strftime('%d %b %Y') }}
+        </span>
+
+        {% if customer.is_active %}
+
+          <span class="customer-status active">
+            Active account
+          </span>
+
+        {% else %}
+
+          <span class="customer-status inactive">
+            Inactive account
+          </span>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <form
+    method="POST"
+    action="{{ url_for('admin.update_customer_status', customer_id=customer.id) }}"
+    class="customer-status-form"
+    onsubmit="return confirm('Are you sure you want to change this customer account status?');"
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    {% if customer.is_active %}
+
+      <input
+        type="hidden"
+        name="action"
+        value="deactivate"
+      >
+
+      <button
+        type="submit"
+        class="customer-danger-button"
+      >
+        Deactivate Account
+      </button>
+
+      <small>
+        The customer will not be able to sign in.
+      </small>
+
+    {% else %}
+
+      <input
+        type="hidden"
+        name="action"
+        value="activate"
+      >
+
+      <button
+        type="submit"
+        class="customer-activate-button"
+      >
+        Activate Account
+      </button>
+
+      <small>
+        The customer will be able to sign in again.
+      </small>
+
+    {% endif %}
+
+  </form>
+
+</section>
+
+<section class="customer-detail-stats">
+
+  <article>
+
+    <span>▣</span>
+
+    <div>
+      <p>Total Bookings</p>
+      <strong>
+        {{ customer_stats.total_bookings }}
+      </strong>
+    </div>
+
+  </article>
+
+  <article>
+
+    <span>◷</span>
+
+    <div>
+      <p>Upcoming Tours</p>
+      <strong>
+        {{ customer_stats.upcoming_bookings }}
+      </strong>
+    </div>
+
+  </article>
+
+  <article>
+
+    <span>✉</span>
+
+    <div>
+      <p>Tour Inquiries</p>
+      <strong>
+        {{ customer_stats.total_inquiries }}
+      </strong>
+    </div>
+
+  </article>
+
+  <article>
+
+    <span>₨</span>
+
+    <div>
+      <p>Total Paid Value</p>
+      <strong class="customer-paid-stat">
+        PKR
+        {{ "{:,.0f}".format(customer_stats.paid_revenue or 0) }}
+      </strong>
+    </div>
+
+  </article>
+
+</section>
+
+<section class="customer-detail-grid">
+
+  <article class="customer-detail-card">
+
+    <div class="customer-detail-heading">
+
+      <div>
+        <span>Reservations</span>
+        <h2>Booking History</h2>
+      </div>
+
+      <a
+        href="{{ url_for('admin.bookings', search=customer.email) }}"
+      >
+        Search All
+      </a>
+
+    </div>
+
+    {% if customer_bookings %}
+
+      <div class="customer-table-wrapper">
+
+        <table class="customer-table compact">
+
+          <thead>
+            <tr>
+              <th>Booking</th>
+              <th>Tour</th>
+              <th>Travel Date</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for booking in customer_bookings %}
+
+              <tr>
+
+                <td>
+                  <strong>
+                    {{ booking.booking_number }}
+                  </strong>
+
+                  <small>
+                    {{ booking.created_at.strftime('%d %b %Y') }}
+                  </small>
+                </td>
+
+                <td>
+                  {{ booking.tour.title }}
+                </td>
+
+                <td>
+                  {{ booking.travel_date.strftime('%d %b %Y') }}
+                </td>
+
+                <td>
+                  PKR
+                  {{ "{:,.0f}".format(booking.total_amount or 0) }}
+                </td>
+
+                <td>
+
+                  <span
+                    class="customer-booking-status
+                    status-{{ booking.booking_status }}"
+                  >
+                    {{ booking.booking_status }}
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <a
+                    href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}"
+                    class="customer-small-link"
+                  >
+                    Open
+                  </a>
+
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    {% else %}
+
+      <div class="customer-empty-state small">
+
+        <h3>No bookings yet</h3>
+
+        <p>
+          This customer has not booked a tour.
+        </p>
+
+      </div>
+
+    {% endif %}
+
+  </article>
+
+  <aside class="customer-detail-card customer-contact-card">
+
+    <div class="customer-detail-heading">
+
+      <div>
+        <span>Account</span>
+        <h2>Contact Information</h2>
+      </div>
+
+    </div>
+
+    <dl class="customer-contact-list">
+
+      <div>
+        <dt>Full Name</dt>
+        <dd>{{ customer.name }}</dd>
+      </div>
+
+      <div>
+        <dt>Email Address</dt>
+
+        <dd>
+          <a href="mailto:{{ customer.email }}">
+            {{ customer.email }}
+          </a>
+        </dd>
+      </div>
+
+      <div>
+        <dt>Phone / WhatsApp</dt>
+
+        <dd>
+
+          {% if customer.phone %}
+
+            <a href="tel:{{ customer.phone }}">
+              {{ customer.phone }}
+            </a>
+
+          {% else %}
+
+            Not provided
+
+          {% endif %}
+
+        </dd>
+      </div>
+
+      <div>
+        <dt>Account Status</dt>
+
+        <dd>
+          {{ "Active" if customer.is_active else "Inactive" }}
+        </dd>
+      </div>
+
+      <div>
+        <dt>Last Updated</dt>
+
+        <dd>
+          {{ customer.updated_at.strftime('%d %b %Y, %I:%M %p') }}
+        </dd>
+      </div>
+
+    </dl>
+
+  </aside>
+
+</section>
+
+<section class="customer-detail-card customer-inquiries-section">
+
+  <div class="customer-detail-heading">
+
+    <div>
+      <span>Communication</span>
+      <h2>Tour Inquiries</h2>
+    </div>
+
+    <a
+      href="{{ url_for('admin.inquiries', search=customer.email) }}"
+    >
+      Search All
+    </a>
+
+  </div>
+
+  {% if customer_inquiries %}
+
+    <div class="customer-inquiry-grid">
+
+      {% for inquiry in customer_inquiries %}
+
+        <article class="customer-inquiry-card">
+
+          <div>
+
+            <span>
+              {{ inquiry.inquiry_number }}
+            </span>
+
+            <strong>
+              {{ inquiry.tour.title }}
+            </strong>
+
+            <p>
+              {{ inquiry.message }}
+            </p>
+
+          </div>
+
+          <div class="customer-inquiry-footer">
+
+            <span>
+              {{ inquiry.created_at.strftime('%d %b %Y') }}
+            </span>
+
+            <span
+              class="customer-booking-status
+              status-{{ inquiry.inquiry_status }}"
+            >
+              {{ inquiry.inquiry_status | replace('_', ' ') }}
+            </span>
+
+          </div>
+
+        </article>
+
+      {% endfor %}
+
+    </div>
+
+  {% else %}
+
+    <div class="customer-empty-state small">
+
+      <h3>No tour inquiries</h3>
+
+      <p>
+        This customer has not submitted a tour inquiry.
+      </p>
+
+    </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

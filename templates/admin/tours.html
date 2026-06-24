@@ -1,0 +1,141 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Tours{% endblock %}
+
+{% block page_title %}Tour Management{% endblock %}
+
+{% block page_subtitle %}
+Add, edit, publish and organize your tour packages
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.add_tour') }}"
+  class="primary-button"
+>
+  + Add New Tour
+</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-card">
+
+  <div class="section-title">
+    <h2>All Tours</h2>
+    <p>{{ tours|length }} tours available</p>
+  </div>
+
+  {% if tours %}
+
+    <div class="table-wrapper">
+
+      <table class="admin-table">
+
+        <thead>
+          <tr>
+            <th>Tour</th>
+            <th>Category</th>
+            <th>Destination</th>
+            <th>Duration</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for tour in tours %}
+
+            <tr>
+
+              <td>
+                {% if tour.main_image %}
+                  <img
+                    src="{{ tour.main_image }}"
+                    class="table-image"
+                    alt="{{ tour.title }}"
+                  >
+                {% endif %}
+
+                <strong>{{ tour.title }}</strong>
+
+                {% if tour.is_featured %}
+                  <span>★</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {{ tour.category.name if tour.category else "Uncategorized" }}
+              </td>
+
+              <td>{{ tour.destination }}</td>
+
+              <td>{{ tour.duration_days }} Days</td>
+
+              <td>
+                PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+              </td>
+
+              <td>
+                <span class="status-badge status-{{ tour.status }}">
+                  {{ tour.status }}
+                </span>
+              </td>
+
+              <td>
+                <div class="actions">
+
+                  <a
+                    href="{{ url_for('admin.edit_tour', tour_id=tour.id) }}"
+                    class="secondary-button"
+                  >
+                    Edit
+                  </a>
+
+                  <a
+  href="{{ url_for('admin.tour_gallery', tour_id=tour.id) }}"
+  class="secondary-button"
+>
+  Gallery
+</a>
+
+                  <form
+                    action="{{ url_for('admin.delete_tour', tour_id=tour.id) }}"
+                    method="POST"
+                    data-confirm="Delete this tour permanently?"
+                  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button
+                      type="submit"
+                      class="danger-button"
+                    >
+                      Delete
+                    </button>
+                  </form>
+
+                </div>
+              </td>
+
+            </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  {% else %}
+
+    <div class="empty-state">
+      No tours found. Add your first tour package.
+    </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,206 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+My Wishlist | Capture Pakistan
+{% endblock %}
+
+{% block meta_description %}
+View and manage the Pakistan tours saved to your wishlist.
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tours.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/wishlist.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="wishlist-page">
+
+  <div class="page-container">
+
+    <header class="wishlist-page-header">
+
+      <div>
+        <span class="wishlist-eyebrow">
+          Customer Account
+        </span>
+
+        <h1>My Wishlist</h1>
+
+        <p>
+          Keep your favourite Pakistan tours in one place
+          and return whenever you are ready to book.
+        </p>
+      </div>
+
+      <div class="wishlist-header-actions">
+
+        <span class="wishlist-total-pill">
+          <strong data-wishlist-count>
+            {{ wishlist_items|length }}
+          </strong>
+          Saved {{ "Tour" if wishlist_items|length == 1 else "Tours" }}
+        </span>
+
+        <a
+          href="{{ url_for('public.public_tours') }}"
+          class="wishlist-explore-button"
+        >
+          Explore More Tours
+        </a>
+
+      </div>
+
+    </header>
+
+    <div
+      class="wishlist-grid"
+      data-wishlist-grid
+      {% if not wishlist_items %}hidden{% endif %}
+    >
+
+      {% for item in wishlist_items %}
+
+        {% set tour = item.tour %}
+
+        <article
+          class="wishlist-tour-card"
+          data-wishlist-card="{{ tour.id }}"
+        >
+
+          <a
+            href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+            class="wishlist-card-image"
+          >
+
+            {% if tour.main_image %}
+              <img
+                src="{{ tour.main_image }}"
+                alt="{{ tour.title }}"
+              >
+            {% else %}
+              <span class="wishlist-image-placeholder">⛰</span>
+            {% endif %}
+
+            <span class="wishlist-category-badge">
+              {{ tour.category.name if tour.category else "Pakistan Tour" }}
+            </span>
+
+          </a>
+
+          <form
+            method="POST"
+            action="{{ url_for('customer.toggle_wishlist', tour_id=tour.id) }}"
+            class="wishlist-form wishlist-remove-form"
+            data-wishlist-form
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <input
+              type="hidden"
+              name="next"
+              value="{{ request.url }}"
+            >
+
+            <button
+              type="submit"
+              class="wishlist-toggle-button is-saved"
+              data-wishlist-button
+              data-tour-id="{{ tour.id }}"
+              aria-label="Remove {{ tour.title }} from wishlist"
+              aria-pressed="true"
+            >
+              <span class="wishlist-heart">♥</span>
+              <span class="wishlist-button-label">Saved</span>
+            </button>
+
+          </form>
+
+          <div class="wishlist-card-body">
+
+            <div class="wishlist-card-meta">
+              <span>📍 {{ tour.destination }}</span>
+              <span>◷ {{ tour.duration_days }} Days</span>
+            </div>
+
+            <h2>
+              <a href="{{ url_for('public.tour_detail', slug=tour.slug) }}">
+                {{ tour.title }}
+              </a>
+            </h2>
+
+            <p>
+              {{ tour.short_description or tour.description|striptags|truncate(135) }}
+            </p>
+
+            <div class="wishlist-card-footer">
+
+              <div class="wishlist-price">
+                <small>From</small>
+                <strong>
+                  PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+                </strong>
+                <span>per person</span>
+              </div>
+
+              <a
+                href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                class="wishlist-view-button"
+              >
+                View Tour →
+              </a>
+
+            </div>
+
+          </div>
+
+        </article>
+
+      {% endfor %}
+
+    </div>
+
+    <section
+      class="wishlist-empty-state"
+      data-wishlist-empty
+      {% if wishlist_items %}hidden{% endif %}
+    >
+
+      <span class="wishlist-empty-icon">♡</span>
+
+      <h2>Your wishlist is waiting</h2>
+
+      <p>
+        Save tours you love and compare them later before
+        planning your Pakistan adventure.
+      </p>
+
+      <a href="{{ url_for('public.public_tours') }}">
+        Discover Pakistan Tours
+      </a>
+
+    </section>
+
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/wishlist.js') }}"
+></script>
+
+{% endblock %}

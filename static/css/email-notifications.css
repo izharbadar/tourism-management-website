@@ -1,0 +1,248 @@
+
+.email-status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
+  padding: 22px 24px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: #ffffff;
+}
+
+.email-status-card.is-ready {
+  border-color: #a6e3c1;
+  background: #effcf5;
+}
+
+.email-status-card.is-warning {
+  border-color: #f5d49d;
+  background: #fff9ed;
+}
+
+.email-status-label {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.email-status-card h2 {
+  margin: 7px 0 5px;
+  font-size: 18px;
+}
+
+.email-status-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.email-status-dot {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+  border-radius: 50%;
+  background: #f0a000;
+  box-shadow: 0 0 0 7px rgba(240, 160, 0, .12);
+}
+
+.email-status-card.is-ready .email-status-dot {
+  background: #12b76a;
+  box-shadow: 0 0 0 7px rgba(18, 183, 106, .12);
+}
+
+.email-settings-grid {
+  align-items: start;
+}
+
+.notification-checkboxes {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: #f9fcfa;
+}
+
+.notification-checkboxes.compact {
+  grid-template-columns: repeat(2, 1fr);
+  margin-top: 14px;
+}
+
+.email-flow-list {
+  display: grid;
+  gap: 14px;
+}
+
+.email-flow-list > div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 13px;
+  background: #f7faf8;
+}
+
+.email-flow-list > div > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 30px;
+  border-radius: 10px;
+  color: #ffffff;
+  background: var(--primary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.email-flow-list p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.email-flow-list strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--text);
+  font-size: 11px;
+}
+
+.email-recipient-section,
+.email-log-section {
+  margin-top: 22px;
+}
+
+.email-recipient-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.email-recipient-card {
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.email-recipient-card.is-inactive {
+  opacity: .72;
+}
+
+.recipient-card-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 16px;
+}
+
+.recipient-avatar {
+  width: 39px;
+  height: 39px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 39px;
+  border-radius: 12px;
+  color: #ffffff;
+  background: var(--primary);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.recipient-card-heading > div {
+  min-width: 0;
+  flex: 1;
+}
+
+.recipient-card-heading strong,
+.recipient-card-heading small {
+  display: block;
+}
+
+.recipient-card-heading strong {
+  font-size: 12px;
+}
+
+.recipient-card-heading small {
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipient-edit-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.recipient-save-button {
+  width: 100%;
+  margin-top: 14px;
+}
+
+.recipient-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.email-log-table {
+  min-width: 1100px;
+}
+
+.email-log-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.email-log-status.status-sent {
+  color: #067647;
+  background: #dcfae6;
+}
+
+.email-log-status.status-failed {
+  color: #b42318;
+  background: #fee4e2;
+}
+
+.email-log-status.status-skipped {
+  color: #854d0e;
+  background: #fef3c7;
+}
+
+.email-error-cell {
+  max-width: 290px;
+  color: var(--muted);
+  font-size: 9px !important;
+  white-space: normal;
+}
+
+@media (max-width: 1000px) {
+  .email-recipient-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 650px) {
+  .email-status-card {
+    align-items: flex-start;
+  }
+
+  .recipient-edit-grid,
+  .notification-checkboxes.compact {
+    grid-template-columns: 1fr;
+  }
+}

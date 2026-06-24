@@ -1,0 +1,105 @@
+{% set rating_count = review_summary.count | default(0) %}
+{% set rating_average = review_summary.average | default(0) %}
+{% set rating_width = ((rating_average / 5) * 100) if rating_count else 0 %}
+{% set recommended_percentage = review_summary.recommended_percentage | default(0) %}
+
+<div
+  class="tour-title-rating-bar"
+  aria-label="Tour rating information"
+>
+
+  <a
+    href="#tour-reviews"
+    class="tour-title-rating-main"
+  >
+
+    <span
+      class="tour-title-stars"
+      aria-label="{{ '%.1f'|format(rating_average) }} out of 5 stars"
+    >
+      <span class="tour-title-stars-background">
+        ★★★★★
+      </span>
+
+      <span
+        class="tour-title-stars-fill"
+        style="width: {{ rating_width }}%;"
+      >
+        ★★★★★
+      </span>
+    </span>
+
+    {% if rating_count %}
+
+      <strong class="tour-title-rating-number">
+        {{ '%.1f'|format(rating_average) }}
+      </strong>
+
+      <span class="tour-title-review-count">
+        {{ rating_count }}
+        Review{% if rating_count != 1 %}s{% endif %}
+      </span>
+
+    {% else %}
+
+      <span class="tour-title-review-count">
+        New Tour · No reviews yet
+      </span>
+
+    {% endif %}
+
+  </a>
+
+  {% if rating_count %}
+
+    <span class="tour-title-rating-divider"></span>
+
+    <div class="tour-title-recommended">
+
+      <span class="tour-title-recommended-icon">
+        <i class="fa-solid fa-certificate"></i>
+      </span>
+
+      <span>
+        Recommended by
+        <strong>
+          {{ recommended_percentage }}%
+        </strong>
+        of travelers
+      </span>
+
+    </div>
+
+    {% if rating_average >= 4.5 %}
+
+      <span class="tour-title-rating-divider desktop-only"></span>
+
+      <div class="tour-title-excellence">
+
+        <span>
+          <i class="fa-solid fa-award"></i>
+        </span>
+
+        <strong>
+          Traveler Favorite
+        </strong>
+
+      </div>
+
+    {% endif %}
+
+  {% endif %}
+
+  <span class="tour-title-rating-divider desktop-only"></span>
+
+  <div class="tour-title-destination">
+
+    <i class="fa-solid fa-location-dot"></i>
+
+    <span>
+      {{ tour.destination }}
+    </span>
+
+  </div>
+
+</div>

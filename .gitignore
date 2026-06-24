@@ -1,0 +1,12 @@
+
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+logs/
+.DS_Store
+security_phase1_backup/
+complete_seo_backup/
+*_backup/
+*.zip

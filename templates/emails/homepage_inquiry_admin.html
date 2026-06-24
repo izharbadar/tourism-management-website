@@ -1,0 +1,12 @@
+
+{% extends "emails/base.html" %}
+{% block title %}New Website Inquiry{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;color:#c18400;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Website Inquiry</p>
+<h1 style="margin:0 0 12px;font-size:25px;">{{ inquiry.destination }}</h1>
+<p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.7;">Hello {{ recipient.name }}, a new homepage request has been submitted.</p>
+<p style="margin:0 0 6px;"><strong>Customer:</strong> {{ inquiry.name }}</p>
+<p style="margin:0 0 6px;"><strong>Phone:</strong> {{ inquiry.phone }}</p>
+<p style="margin:0 0 6px;"><strong>Travelers:</strong> {{ inquiry.travelers }}</p>
+<p style="margin:0;"><strong>Message:</strong> {{ inquiry.message or 'Not provided' }}</p>
+{% endblock %}

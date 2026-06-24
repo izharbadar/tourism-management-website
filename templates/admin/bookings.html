@@ -1,0 +1,162 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Bookings{% endblock %}
+{% block page_title %}Booking Management{% endblock %}
+{% block page_subtitle %}
+Review, confirm and manage customer reservations
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.add_booking') }}"
+  class="primary-button"
+>
+  + Add Booking
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-system.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-card">
+
+  <form
+    method="GET"
+    class="admin-booking-search"
+  >
+    <input
+      type="search"
+      name="search"
+      value="{{ search }}"
+      placeholder="Booking number, customer or email"
+    >
+
+    <select name="status">
+      <option value="">All booking statuses</option>
+
+      {% for status in ['pending', 'confirmed', 'cancelled', 'completed'] %}
+        <option
+          value="{{ status }}"
+          {% if selected_status == status %}selected{% endif %}
+        >
+          {{ status|title }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <select name="payment">
+      <option value="">All payment statuses</option>
+
+      {% for status in ['unpaid', 'partially_paid', 'paid', 'refunded'] %}
+        <option
+          value="{{ status }}"
+          {% if selected_payment == status %}selected{% endif %}
+        >
+          {{ status|title }}
+        </option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="primary-button">
+      Filter
+    </button>
+  </form>
+
+  {% if bookings %}
+
+    <div class="table-wrapper">
+
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Booking</th>
+            <th>Customer</th>
+            <th>Tour</th>
+            <th>Travel Date</th>
+            <th>Travelers</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Payment</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for booking in bookings %}
+            <tr>
+              <td>
+                <strong>{{ booking.booking_number }}</strong>
+                <br>
+                <small>{{ (booking.invoice_date or booking.created_at.date()).strftime('%d %b %Y') }}</small>
+                {% if booking.booking_source == 'admin' %}
+                  <br><small>Admin Entry</small>
+                {% endif %}
+              </td>
+
+              <td>
+                {{ booking.customer_name }}
+                <br>
+                <small>{{ booking.customer_email }}</small>
+              </td>
+
+              <td>{{ booking.tour_name }}</td>
+
+              <td>{{ booking.travel_date.strftime('%d %b %Y') }}</td>
+
+              <td>{{ booking.total_travelers }}</td>
+
+              <td>
+                <strong>PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}</strong>
+                <br>
+                <small>
+                  Paid: PKR {{ "{:,.0f}".format(booking.paid_amount or 0) }}
+                  · Due: PKR {{ "{:,.0f}".format(booking.balance_amount or 0) }}
+                </small>
+              </td>
+
+              <td>
+                <span class="booking-status status-{{ booking.booking_status }}">
+                  {{ booking.booking_status }}
+                </span>
+              </td>
+
+              <td>
+                <span class="payment-status payment-{{ booking.payment_status }}">
+                  {{ booking.payment_status }}
+                </span>
+              </td>
+
+              <td>
+                <a
+                  href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}"
+                  class="secondary-button"
+                >
+                  Open
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+
+        </tbody>
+      </table>
+
+    </div>
+
+  {% else %}
+
+    <div class="empty-state">
+      No bookings match the selected filters.
+    </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,82 @@
+{% set is_wishlisted = (
+  current_user.is_authenticated
+  and current_user.role == "customer"
+  and tour.id in current_user.wishlist_tour_ids
+) %}
+
+<article class="cp-tour-card">
+  <a
+    href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+    class="cp-tour-card-image"
+  >
+    {% if tour.main_image %}
+      <img src="{{ tour.main_image }}" alt="{{ tour.title }}">
+    {% else %}
+      <div class="cp-image-placeholder">⛰</div>
+    {% endif %}
+
+    <span class="cp-tour-duration">{{ tour.duration_days }} days</span>
+
+    {% if tour.is_featured %}
+      <span class="cp-tour-featured">Featured</span>
+    {% endif %}
+  </a>
+
+  <form
+    method="POST"
+    action="{{ url_for('customer.toggle_wishlist', tour_id=tour.id) }}"
+    class="wishlist-form cp-tour-wishlist"
+    data-wishlist-form
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ request.full_path }}">
+    <button
+      type="submit"
+      class="cp-heart-button{% if is_wishlisted %} is-saved{% endif %}"
+      data-wishlist-button
+      data-tour-id="{{ tour.id }}"
+      aria-label="{{ 'Remove from' if is_wishlisted else 'Add to' }} wishlist"
+      aria-pressed="{{ 'true' if is_wishlisted else 'false' }}"
+    >
+      <span class="wishlist-heart">{{ '♥' if is_wishlisted else '♡' }}</span>
+    </button>
+  </form>
+
+  <div class="cp-tour-card-body">
+    <div class="cp-tour-card-meta">
+      <a href="{{ url_for('public.destination_detail', slug=tour.destination|destination_slug) }}">
+        {{ tour.destination }}
+      </a>
+
+      {% if tour.category %}
+        <a href="{{ url_for('public.category_detail', slug=tour.category.slug) }}">
+          {{ tour.category.name }}
+        </a>
+      {% endif %}
+    </div>
+
+    <h3>
+      <a href="{{ url_for('public.tour_detail', slug=tour.slug) }}">
+        {{ tour.title }}
+      </a>
+    </h3>
+
+    <p>
+      {{ tour.short_description or tour.description|striptags|truncate(125) }}
+    </p>
+
+    <div class="cp-tour-card-footer">
+      <div>
+        <span>From</span>
+        <strong>
+          {{ site_settings.currency_symbol }}
+          {{ "{:,.0f}".format(tour.base_price or 0) }}
+        </strong>
+      </div>
+
+      <a href="{{ url_for('public.tour_detail', slug=tour.slug) }}">
+        View Tour →
+      </a>
+    </div>
+  </div>
+</article>

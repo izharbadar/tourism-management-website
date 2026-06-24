@@ -1,0 +1,357 @@
+
+{% extends "admin/base.html" %}
+
+{% block title %}Email Notifications{% endblock %}
+{% block page_title %}Email Notifications{% endblock %}
+{% block page_subtitle %}
+Manage staff recipients and inspect delivery history
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/email-notifications.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="email-status-card {% if email_status.configured %}is-ready{% else %}is-warning{% endif %}">
+  <div>
+    <span class="email-status-label">SMTP Status</span>
+
+    <h2>
+      {% if email_status.configured %}
+        Email delivery is ready
+      {% elif not email_status.enabled %}
+        Email delivery is disabled
+      {% else %}
+        SMTP configuration is incomplete
+      {% endif %}
+    </h2>
+
+    <p>
+      {% if email_status.configured %}
+        Sending from {{ email_status.sender }} through
+        {{ email_status.server }}:{{ email_status.port }}.
+      {% elif email_status.missing %}
+        Missing: {{ email_status.missing|join(', ') }}
+      {% else %}
+        Set MAIL_ENABLED=true in your .env file when SMTP is ready.
+      {% endif %}
+    </p>
+  </div>
+
+  <span class="email-status-dot"></span>
+</section>
+
+<div class="grid-two email-settings-grid">
+
+  <section class="page-card">
+    <div class="section-title">
+      <h2>Add Notification Recipient</h2>
+      <p>
+        Add the admin, sales or support email addresses that should receive alerts.
+      </p>
+    </div>
+
+    <form
+      action="{{ url_for('admin.add_email_recipient') }}"
+      method="POST"
+      class="form-grid"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-field full">
+        <label>Name *</label>
+        <input
+          type="text"
+          name="name"
+          placeholder="Sales Team"
+          required
+        >
+      </div>
+
+      <div class="form-field full">
+        <label>Email Address *</label>
+        <input
+          type="email"
+          name="email"
+          placeholder="sales@example.com"
+          required
+        >
+      </div>
+
+      <div class="form-field full">
+        <label>Receive Notifications</label>
+
+        <div class="notification-checkboxes">
+          <label class="checkbox-field">
+            <input
+              type="checkbox"
+              name="receive_new_bookings"
+              checked
+            >
+            New bookings
+          </label>
+
+          <label class="checkbox-field">
+            <input
+              type="checkbox"
+              name="receive_booking_cancellations"
+              checked
+            >
+            Booking cancellations
+          </label>
+
+          <label class="checkbox-field">
+            <input
+              type="checkbox"
+              name="receive_new_inquiries"
+              checked
+            >
+            New inquiries
+          </label>
+        </div>
+      </div>
+
+      <label class="checkbox-field">
+        <input
+          type="checkbox"
+          name="is_active"
+          checked
+        >
+        Active recipient
+      </label>
+
+      <div class="form-field full">
+        <button
+          type="submit"
+          class="primary-button"
+        >
+          Add Email Recipient
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <section class="page-card">
+    <div class="section-title">
+      <h2>How It Works</h2>
+      <p>Every recipient receives a separate private email.</p>
+    </div>
+
+    <div class="email-flow-list">
+      <div>
+        <span>1</span>
+        <p>
+          <strong>New booking</strong>
+          Customer receives confirmation and selected staff receive the full booking alert.
+        </p>
+      </div>
+
+      <div>
+        <span>2</span>
+        <p>
+          <strong>Booking status update</strong>
+          Customer receives confirmed, cancelled, completed or payment-status updates.
+        </p>
+      </div>
+
+      <div>
+        <span>3</span>
+        <p>
+          <strong>New inquiry</strong>
+          Customer receives a reference email and selected staff receive the inquiry details.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<section class="page-card email-recipient-section">
+  <div class="section-title">
+    <h2>Notification Recipients</h2>
+    <p>{{ recipients|length }} recipient(s) configured</p>
+  </div>
+
+  {% if recipients %}
+    <div class="email-recipient-grid">
+      {% for recipient in recipients %}
+        <article class="email-recipient-card {% if not recipient.is_active %}is-inactive{% endif %}">
+          <form
+            action="{{ url_for('admin.update_email_recipient', recipient_id=recipient.id) }}"
+            method="POST"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="recipient-card-heading">
+              <span class="recipient-avatar">
+                {{ recipient.name[0]|upper }}
+              </span>
+
+              <div>
+                <strong>{{ recipient.name }}</strong>
+                <small>{{ recipient.email }}</small>
+              </div>
+
+              <span class="status-badge status-{{ 'active' if recipient.is_active else 'inactive' }}">
+                {{ 'Active' if recipient.is_active else 'Inactive' }}
+              </span>
+            </div>
+
+            <div class="form-grid recipient-edit-grid">
+              <div class="form-field">
+                <label>Name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value="{{ recipient.name }}"
+                  required
+                >
+              </div>
+
+              <div class="form-field">
+                <label>Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  value="{{ recipient.email }}"
+                  required
+                >
+              </div>
+            </div>
+
+            <div class="notification-checkboxes compact">
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  name="receive_new_bookings"
+                  {% if recipient.receive_new_bookings %}checked{% endif %}
+                >
+                New bookings
+              </label>
+
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  name="receive_booking_cancellations"
+                  {% if recipient.receive_booking_cancellations %}checked{% endif %}
+                >
+                Cancellations
+              </label>
+
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  name="receive_new_inquiries"
+                  {% if recipient.receive_new_inquiries %}checked{% endif %}
+                >
+                Inquiries
+              </label>
+
+              <label class="checkbox-field">
+                <input
+                  type="checkbox"
+                  name="is_active"
+                  {% if recipient.is_active %}checked{% endif %}
+                >
+                Active
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              class="secondary-button recipient-save-button"
+            >
+              Save Recipient
+            </button>
+          </form>
+
+          <div class="recipient-card-actions">
+            <form
+              action="{{ url_for('admin.test_email_recipient', recipient_id=recipient.id) }}"
+              method="POST"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button
+                type="submit"
+                class="secondary-button"
+              >
+                Send Test
+              </button>
+            </form>
+
+            <form
+              action="{{ url_for('admin.delete_email_recipient', recipient_id=recipient.id) }}"
+              method="POST"
+              data-confirm="Delete this email recipient?"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button
+                type="submit"
+                class="danger-button"
+              >
+                Delete
+              </button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      No notification recipients have been added yet.
+    </div>
+  {% endif %}
+</section>
+
+<section class="page-card email-log-section">
+  <div class="section-title">
+    <h2>Recent Email Delivery Log</h2>
+    <p>Latest 50 delivery attempts</p>
+  </div>
+
+  {% if recent_logs %}
+    <div class="table-wrapper">
+      <table class="admin-table email-log-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Recipient</th>
+            <th>Event</th>
+            <th>Subject</th>
+            <th>Status</th>
+            <th>Error</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for log in recent_logs %}
+            <tr>
+              <td>
+                {{ log.created_at.strftime('%d %b %Y %H:%M') }}
+              </td>
+              <td>{{ log.recipient_email }}</td>
+              <td>{{ log.event_type.replace('_', ' ')|title }}</td>
+              <td>{{ log.subject }}</td>
+              <td>
+                <span class="email-log-status status-{{ log.delivery_status }}">
+                  {{ log.delivery_status|title }}
+                </span>
+              </td>
+              <td class="email-error-cell">
+                {{ log.error_message or '—' }}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      No email delivery attempts have been recorded yet.
+    </div>
+  {% endif %}
+</section>
+
+{% endblock %}

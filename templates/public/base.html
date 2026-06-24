@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+  {% include "public/_seo_meta.html" %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  
+
+  
+
+  {% if site_settings.favicon_path %}
+    <link
+      rel="icon"
+      href="{{ url_for('static', filename=site_settings.favicon_path) }}"
+    >
+  {% endif %}
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=DM+Serif+Display&family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  >
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/public.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/public-frontend.css') }}"
+  >
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/unified-public-header.css') }}"
+  >
+{% block extra_css %}{% endblock %}
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/exact-home-footer.css') }}"
+  >
+
+</head>
+
+<body>
+
+  <header class="site-header unified-site-header" id="siteHeader">
+
+    <div class="header-container">
+
+      <a
+        href="{{ url_for('public.home') }}"
+        class="header-logo"
+        aria-label="{{ site_settings.site_name }} homepage"
+      >
+
+        {% if site_settings.logo_path %}
+
+          <img
+            src="{{ url_for('static', filename=site_settings.logo_path) }}"
+            alt="{{ site_settings.site_name }}"
+          >
+
+        {% else %}
+
+          <img
+            src="{{ url_for('static', filename='images/logo.png') }}"
+            alt="{{ site_settings.site_name }}"
+          >
+
+        {% endif %}
+
+      </a>
+
+      <button
+        class="mobile-menu-btn"
+        id="mobileMenuBtn"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav
+        class="main-navigation"
+        id="mainNavigation"
+        aria-label="Primary navigation"
+      >
+
+        <a
+          href="{{ url_for('public.home') }}"
+          class="nav-link {% if request.endpoint == 'public.home' %}active{% endif %}"
+        >
+          Home
+        </a>
+
+        <a
+          href="{{ url_for('public.destinations') }}"
+          class="nav-link {% if request.endpoint in ['public.destinations', 'public.destination_detail'] %}active{% endif %}"
+        >
+          Destinations
+        </a>
+
+        <a
+          href="{{ url_for('public.public_tours') }}"
+          class="nav-link {% if request.endpoint in ['public.public_tours', 'public.tour_detail', 'public.category_detail'] %}active{% endif %}"
+        >
+          Tours
+        </a>
+
+        <a
+          href="{{ url_for('public.trekking') }}"
+          class="nav-link {% if request.endpoint == 'public.trekking' %}active{% endif %}"
+        >
+          Trekking
+        </a>
+
+        <a
+          href="{{ url_for('public.about') }}"
+          class="nav-link {% if request.endpoint == 'public.about' %}active{% endif %}"
+        >
+          About Us
+        </a>
+
+        <a
+          href="{{ url_for('public.gallery_page') }}"
+          class="nav-link {% if request.endpoint == 'public.gallery_page' %}active{% endif %}"
+        >
+          Gallery
+        </a>
+
+        <a
+          href="{{ url_for('public.pakistan_visa') }}"
+          class="nav-link {% if request.endpoint == 'public.pakistan_visa' %}active{% endif %}"
+        >
+          Pakistan Visa
+        </a>
+
+        <a
+          href="{{ url_for('public.contact') }}"
+          class="nav-link {% if request.endpoint == 'public.contact' %}active{% endif %}"
+        >
+          Contact Us
+        </a>
+
+      </nav>
+
+      <div class="header-actions">
+
+        <a
+          href="tel:{{ site_settings.phone_link }}"
+          class="header-phone"
+        >
+          <span class="phone-icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2
+              19.79 19.79 0 0 1-8.63-3.07
+              19.5 19.5 0 0 1-6-6
+              19.79 19.79 0 0 1-3.07-8.67
+              A2 2 0 0 1 4.11 2h3
+              a2 2 0 0 1 2 1.72
+              c.12.9.33 1.78.62 2.63
+              a2 2 0 0 1-.45 2.11L8 9.73
+              a16 16 0 0 0 6 6l1.27-1.27
+              a2 2 0 0 1 2.11-.45
+              c.85.29 1.73.5 2.63.62
+              A2 2 0 0 1 22 16.92z"/>
+            </svg>
+          </span>
+
+          <span class="phone-content">
+            <small>Call for bookings</small>
+            <strong>{{ site_settings.phone_display }}</strong>
+          </span>
+        </a>
+
+        {% if current_user.is_authenticated %}
+
+          <div class="profile-menu" data-profile-menu>
+
+            <button
+              type="button"
+              class="profile-trigger"
+              data-profile-trigger
+              aria-expanded="false"
+            >
+              <span class="profile-avatar">
+                {{ current_user.name[0] | upper }}
+              </span>
+
+              <span class="profile-text">
+                <strong>{{ current_user.name }}</strong>
+
+                <small>
+                  {% if current_user.role == "admin" %}
+                    Manage Admin Panel
+                  {% else %}
+                    Manage Account
+                  {% endif %}
+                </small>
+              </span>
+
+              <span class="profile-arrow">⌄</span>
+            </button>
+
+            <div class="profile-dropdown">
+
+              <div class="dropdown-heading">
+
+                <span class="dropdown-avatar">
+                  {{ current_user.name[0] | upper }}
+                </span>
+
+                <div>
+                  <strong>{{ current_user.name }}</strong>
+
+                  <small>
+                    {% if current_user.role == "admin" %}
+                      Administrator
+                    {% else %}
+                      Customer Account
+                    {% endif %}
+                  </small>
+                </div>
+
+              </div>
+
+              <div class="dropdown-divider"></div>
+
+              {% if current_user.role == "admin" %}
+
+                <a
+                  href="{{ url_for('admin.dashboard') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">▦</span>
+
+                  <span>
+                    <strong>Dashboard</strong>
+                    <small>View admin overview</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('admin.tours') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">⛰</span>
+
+                  <span>
+                    <strong>Manage Tours</strong>
+                    <small>Add and edit tours</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('admin.bookings') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">▣</span>
+
+                  <span>
+                    <strong>Bookings</strong>
+                    <small>Manage reservations</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('admin.inquiries') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">✉</span>
+
+                  <span>
+                    <strong>Inquiries</strong>
+                    <small>View customer requests</small>
+                  </span>
+                </a>
+
+              {% else %}
+
+                <a
+                  href="{{ url_for('customer.dashboard') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">▦</span>
+
+                  <span>
+                    <strong>My Dashboard</strong>
+                    <small>View account overview</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('customer.bookings') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">▣</span>
+
+                  <span>
+                    <strong>My Bookings</strong>
+                    <small>View booked tours</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('customer.wishlist') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">♡</span>
+
+                  <span>
+                    <strong>My Wishlist</strong>
+                    <small>View saved tours</small>
+                  </span>
+                </a>
+
+                <a
+                  href="{{ url_for('customer.reviews') }}"
+                  class="profile-option"
+                >
+                  My Reviews
+                </a>
+
+                <a
+                  href="{{ url_for('customer.profile') }}"
+                  class="profile-option"
+                >
+                  <span class="option-icon">◎</span>
+
+                  <span>
+                    <strong>My Profile</strong>
+                    <small>Edit account details</small>
+                  </span>
+                </a>
+
+              {% endif %}
+
+              <div class="dropdown-divider"></div>
+
+              <a
+                href="{{ url_for('auth.logout') }}"
+                class="profile-option logout-option"
+              >
+                <span class="option-icon">↪</span>
+
+                <span>
+                  <strong>Logout</strong>
+                  <small>Sign out of your account</small>
+                </span>
+              </a>
+
+            </div>
+
+          </div>
+
+        {% else %}
+
+          <a
+            href="{{ url_for('auth.login') }}"
+            class="header-login-btn"
+          >
+            Login
+          </a>
+
+          <a
+            href="{{ url_for('auth.register') }}"
+            class="header-register-btn"
+          >
+            Register
+          </a>
+
+        {% endif %}
+
+      </div>
+
+    </div>
+
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="public-alerts">
+        {% for category, message in messages %}
+          <div class="public-alert alert-{{ category }}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>{% block content %}{% endblock %}</main>
+  {% include "public/_site_footer.html" %}
+
+  <script src="{{ url_for('static', filename='js/public.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/public-frontend.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/unified-public-header.js') }}"></script>
+{% block scripts %}{% endblock %}
+  <script
+    src="{{ url_for('static', filename='js/security-csrf.js') }}"
+  ></script>
+
+</body>
+</html>

@@ -1,0 +1,295 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Booking Details{% endblock %}
+{% block page_title %}Booking Details{% endblock %}
+{% block page_subtitle %}
+{{ booking.booking_number }} · {{ booking.customer_name }}
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.booking_invoice', booking_id=booking.id) }}"
+  class="primary-button"
+>
+  Download Invoice PDF
+</a>
+
+<a
+  href="{{ url_for('admin.add_booking') }}"
+  class="secondary-button"
+>
+  Add Another Booking
+</a>
+
+<a
+  href="{{ url_for('admin.bookings') }}"
+  class="secondary-button"
+>
+  Back to Bookings
+</a>
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-system.css') }}"
+>
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-booking-create.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-two">
+
+  <section class="page-card">
+    <div class="section-title">
+      <h2>Reservation Information</h2>
+      <p>
+        {{ booking.booking_number }}
+        {% if booking.booking_source == 'admin' %}
+          · Added by Admin
+        {% endif %}
+      </p>
+    </div>
+
+    <div class="booking-info-grid">
+
+      <div class="booking-info-item">
+        <small>Customer</small>
+        <strong>{{ booking.customer_name }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Email</small>
+        <strong>{{ booking.customer_email }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Phone</small>
+        <strong>{{ booking.customer_phone or 'Not provided' }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Tour</small>
+        <strong>{{ booking.tour_name }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Destination</small>
+        <strong>{{ booking.tour_destination }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Travel Date</small>
+        <strong>{{ booking.travel_date.strftime('%d %B %Y') }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Invoice Date</small>
+        <strong>
+          {{ (booking.invoice_date or booking.created_at.date()).strftime('%d %B %Y') }}
+        </strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Total Travelers</small>
+        <strong>{{ booking.total_travelers }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Adults / Children</small>
+        <strong>{{ booking.adults }} / {{ booking.children }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Pricing Type</small>
+        <strong>{{ booking.pricing_type|replace('_', ' ')|title }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Payment Method</small>
+        <strong>{{ booking.payment_method_label }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Total Amount</small>
+        <strong>PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}</strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Advance / Paid</small>
+        <strong class="amount-paid">
+          PKR {{ "{:,.0f}".format(booking.paid_amount or 0) }}
+        </strong>
+      </div>
+
+      <div class="booking-info-item">
+        <small>Balance Due</small>
+        <strong class="amount-due">
+          PKR {{ "{:,.0f}".format(booking.balance_amount or 0) }}
+        </strong>
+      </div>
+
+    </div>
+
+    {% if booking.special_request %}
+      <div class="section-title" style="margin-top: 24px;">
+        <h2>Customer Request</h2>
+      </div>
+
+      <p>{{ booking.special_request }}</p>
+    {% endif %}
+  </section>
+
+  <section class="page-card">
+    <div class="section-title">
+      <h2>Update Booking</h2>
+      <p>Update status, amount received and remaining balance.</p>
+    </div>
+
+    <form
+      method="POST"
+      action="{{ url_for('admin.update_booking', booking_id=booking.id) }}"
+      class="admin-booking-update"
+      data-payment-update-form
+    >
+      <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ csrf_token() }}"
+      >
+
+      <div class="booking-form-grid two-columns">
+        <div class="form-field">
+          <label>Booking Status</label>
+          <select name="booking_status">
+            {% for status in ['pending', 'confirmed', 'cancelled', 'completed'] %}
+              <option
+                value="{{ status }}"
+                {% if booking.booking_status == status %}selected{% endif %}
+              >
+                {{ status|replace('_', ' ')|title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Payment Status</label>
+          <select name="payment_status">
+            {% for status in ['unpaid', 'partially_paid', 'paid', 'refunded'] %}
+              <option
+                value="{{ status }}"
+                {% if booking.payment_status == status %}selected{% endif %}
+              >
+                {{ status|replace('_', ' ')|title }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Total Amount</label>
+          <input
+            type="number"
+            name="total_amount"
+            min="0"
+            step="0.01"
+            value="{{ booking.total_amount or 0 }}"
+            data-update-total
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Advance / Paid Amount</label>
+          <input
+            type="number"
+            name="paid_amount"
+            min="0"
+            step="0.01"
+            value="{{ booking.paid_amount or 0 }}"
+            data-update-paid
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Current Balance</label>
+          <input
+            type="text"
+            value="PKR {{ '{:,.0f}'.format(booking.balance_amount or 0) }}"
+            data-update-balance
+            readonly
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Invoice Date</label>
+          <input
+            type="date"
+            name="invoice_date"
+            value="{{ (booking.invoice_date or booking.created_at.date()).isoformat() }}"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Payment Method</label>
+          <select name="payment_method" data-update-payment-method>
+            {% for value, label in [
+              ('cash_on_pickup', 'Cash on Pickup'),
+              ('cash', 'Cash'),
+              ('bank_transfer', 'Bank Transfer'),
+              ('jazzcash', 'JazzCash'),
+              ('easypaisa', 'EasyPaisa'),
+              ('online_card', 'Online Card'),
+              ('other', 'Other')
+            ] %}
+              <option
+                value="{{ value }}"
+                {% if booking.payment_method == value %}selected{% endif %}
+              >
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div
+          class="form-field"
+          data-update-custom-payment
+          {% if booking.payment_method != 'other' %}hidden{% endif %}
+        >
+          <label>Custom Payment Method</label>
+          <input
+            type="text"
+            name="custom_payment_method"
+            value="{{ booking.custom_payment_method or '' }}"
+          >
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label>Admin Notes</label>
+        <textarea
+          name="admin_notes"
+          placeholder="Internal notes about this booking..."
+        >{{ booking.admin_notes or '' }}</textarea>
+      </div>
+
+      <button type="submit" class="primary-button">
+        Save Booking Changes
+      </button>
+    </form>
+  </section>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script
+  src="{{ url_for('static', filename='js/admin-booking-create.js') }}"
+></script>
+{% endblock %}

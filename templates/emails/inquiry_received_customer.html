@@ -1,0 +1,14 @@
+
+{% extends "emails/base.html" %}
+{% block title %}Inquiry Received{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;color:#c18400;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Inquiry Received</p>
+<h1 style="margin:0 0 12px;font-size:25px;">Thank you, {{ inquiry.customer_name }}</h1>
+<p style="margin:0 0 22px;color:#667085;font-size:14px;line-height:1.7;">We have received your inquiry for {{ inquiry.tour.title }}. Our team will review it and contact you with the next steps.</p>
+<div style="padding:18px;border-radius:14px;background:#f5faf8;">
+  <p style="margin:0 0 8px;"><strong>Reference:</strong> {{ inquiry.inquiry_number }}</p>
+  <p style="margin:0 0 8px;"><strong>Travelers:</strong> {{ inquiry.travelers }}</p>
+  <p style="margin:0;"><strong>Status:</strong> {{ inquiry.inquiry_status.replace('_', ' ')|title }}</p>
+</div>
+<p style="margin:24px 0 0;"><a href="{{ inquiry_url }}" style="display:inline-block;padding:13px 20px;border-radius:10px;background:#064f40;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;">View Inquiry Reference</a></p>
+{% endblock %}

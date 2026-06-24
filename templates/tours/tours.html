@@ -1,0 +1,55 @@
+{% extends "public/base.html" %}
+
+{% block title %}Pakistan Tours | {{ site_settings.site_name }}{% endblock %}
+{% block meta_description %}Browse private tours, group departures, family holidays and trekking adventures across Pakistan.{% endblock %}
+
+{% block content %}
+<section class="cp-page-hero compact">
+  <div class="page-container">
+    <span class="cp-eyebrow light">Explore Pakistan</span>
+    <h1>Find Your Perfect Pakistan Tour</h1>
+    
+  </div>
+</section>
+
+<section class="cp-section">
+  <div class="page-container">
+    <form method="GET" action="{{ url_for('public.public_tours') }}" class="cp-filter-panel">
+      <label class="wide"><span>Search Tours</span><input type="search" name="search" value="{{ search }}" placeholder="Search Hunza, Skardu, trekking..."></label>
+
+      <label><span>Destination</span><select name="destination"><option value="">All destinations</option>{% for destination in destinations %}<option value="{{ destination.name }}" {% if selected_destination == destination.name %}selected{% endif %}>{{ destination.name }}</option>{% endfor %}</select></label>
+
+      <label><span>Category</span><select name="category"><option value="">All categories</option>{% for category in categories %}<option value="{{ category.slug }}" {% if selected_category == category.slug %}selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></label>
+
+      <label><span>Tour Type</span><select name="type"><option value="">All types</option><option value="private" {% if selected_type == 'private' %}selected{% endif %}>Private Tour</option><option value="group" {% if selected_type == 'group' %}selected{% endif %}>Group Tour</option><option value="fixed_departure" {% if selected_type == 'fixed_departure' %}selected{% endif %}>Fixed Departure</option><option value="custom" {% if selected_type == 'custom' %}selected{% endif %}>Custom Tour</option></select></label>
+
+      <label><span>Sort</span><select name="sort"><option value="featured" {% if selected_sort == 'featured' %}selected{% endif %}>Featured</option><option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option><option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option><option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest</option></select></label>
+
+      <button type="submit" class="cp-button dark">Search</button>
+    </form>
+
+    <div class="cp-results-heading">
+      <div><span class="cp-eyebrow">Available journeys</span><h2>{{ pagination.total }} {{ 'Tour' if pagination.total == 1 else 'Tours' }} Found</h2></div>
+      {% if search or selected_category or selected_destination or selected_type %}<a href="{{ url_for('public.public_tours') }}" class="cp-text-link">Clear filters</a>{% endif %}
+    </div>
+
+    {% if tours %}
+      <div class="cp-tour-grid">
+        {% for tour in tours %}{% include "public/partials/tour_card.html" %}{% endfor %}
+      </div>
+
+      {% if pagination.pages > 1 %}
+        <nav class="cp-pagination" aria-label="Tour pages">
+          {% if pagination.has_prev %}<a href="{{ url_for('public.public_tours', page=pagination.prev_num, search=search, category=selected_category, destination=selected_destination, type=selected_type, sort=selected_sort) }}">← Previous</a>{% else %}<span>← Previous</span>{% endif %}
+          <strong>Page {{ pagination.page }} of {{ pagination.pages }}</strong>
+          {% if pagination.has_next %}<a href="{{ url_for('public.public_tours', page=pagination.next_num, search=search, category=selected_category, destination=selected_destination, type=selected_type, sort=selected_sort) }}">Next →</a>{% else %}<span>Next →</span>{% endif %}
+        </nav>
+      {% endif %}
+    {% else %}
+      <div class="cp-empty-card"><h3>No tours matched your filters</h3><p>Try another destination, category or search phrase.</p><a href="{{ url_for('public.public_tours') }}" class="cp-button dark">View All Tours</a></div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/wishlist.js') }}"></script>{% endblock %}

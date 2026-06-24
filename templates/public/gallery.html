@@ -1,0 +1,181 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+Gallery | {{ site_settings.site_name }}
+{% endblock %}
+
+{% block meta_description %}
+Travel photos and memorable moments from tours across Pakistan.
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/public-gallery-page.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<main class="gallery-page">
+
+  <section class="gallery-page-header">
+    <div class="gallery-container">
+
+      <nav
+        class="gallery-breadcrumb"
+        aria-label="Breadcrumb"
+      >
+        <a href="{{ url_for('public.home') }}">
+          Home
+        </a>
+
+        <span>
+          <i class="fa-solid fa-chevron-right"></i>
+        </span>
+
+        <strong>
+          Gallery
+        </strong>
+      </nav>
+
+      <div class="gallery-title-row">
+
+        <div>
+          <span class="gallery-kicker">
+            Capture Pakistan
+          </span>
+
+          <h1>Travel Gallery</h1>
+
+          <p>
+            Moments from our journeys, tours and adventures
+            across Pakistan.
+          </p>
+        </div>
+
+        
+
+      </div>
+
+    </div>
+  </section>
+
+  <section class="gallery-content">
+    <div class="gallery-container">
+
+      {% if images %}
+
+        <div
+          class="gallery-masonry"
+          data-public-gallery
+        >
+
+          {% for image in images %}
+
+            <figure class="gallery-item">
+
+              <button
+                type="button"
+                class="gallery-image-button"
+                data-gallery-open
+                aria-label="Open gallery image"
+              >
+                <img
+                  src="{{ url_for('static', filename=image.image_path) }}"
+                  alt="{{ image.alt_text or image.title or 'Pakistan travel gallery image' }}"
+                  loading="lazy"
+                >
+              </button>
+
+              <span data-lightbox-src hidden>
+                {{ url_for('static', filename=image.image_path) }}
+              </span>
+
+              <span data-lightbox-alt hidden>
+                {{ image.alt_text or image.title or 'Pakistan travel gallery image' }}
+              </span>
+
+            </figure>
+
+          {% endfor %}
+
+        </div>
+
+      {% else %}
+
+        <div class="gallery-empty">
+          <i class="fa-regular fa-images"></i>
+
+          <h2>No gallery photos yet</h2>
+
+          <p>
+            Published gallery photos will appear here automatically.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div>
+  </section>
+
+</main>
+
+<div
+  class="gallery-lightbox"
+  data-gallery-lightbox
+  hidden
+  aria-hidden="true"
+>
+
+  <button
+    type="button"
+    class="gallery-lightbox-close"
+    data-gallery-close
+    aria-label="Close image"
+  >
+    ×
+  </button>
+
+  <button
+    type="button"
+    class="gallery-lightbox-arrow previous"
+    data-gallery-previous
+    aria-label="Previous image"
+  >
+    ‹
+  </button>
+
+  <div class="gallery-lightbox-stage">
+
+    <img
+      src=""
+      alt=""
+      data-gallery-lightbox-image
+    >
+
+    <span
+      class="gallery-lightbox-counter"
+      data-gallery-lightbox-counter
+    ></span>
+
+  </div>
+
+  <button
+    type="button"
+    class="gallery-lightbox-arrow next"
+    data-gallery-next
+    aria-label="Next image"
+  >
+    ›
+  </button>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script
+  src="{{ url_for('static', filename='js/public-gallery-page.js') }}"
+></script>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% if booking.booking_status == 'completed' %}
+  <div class="booking-review-prompt">
+    <span class="booking-review-icon">★</span>
+
+    <div>
+      <strong>
+        {% if booking.review %}
+          Your tour review
+        {% else %}
+          How was your tour?
+        {% endif %}
+      </strong>
+
+      <p>
+        {% if booking.review %}
+          Your review is currently {{ booking.review.status }}.
+        {% else %}
+          Share your experience with future travelers.
+        {% endif %}
+      </p>
+    </div>
+
+    <a href="{{ url_for('customer.booking_review', booking_number=booking.booking_number) }}">
+      {{ 'Edit Review' if booking.review else 'Write Review' }}
+    </a>
+  </div>
+{% endif %}

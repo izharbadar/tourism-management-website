@@ -1,0 +1,328 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Tour Gallery
+{% endblock %}
+
+{% block page_title %}
+Tour Image Gallery
+{% endblock %}
+
+{% block page_subtitle %}
+Upload and organize images for {{ tour.title }}
+{% endblock %}
+
+{% block top_actions %}
+
+<a
+  href="{{ url_for('admin.edit_tour', tour_id=tour.id) }}"
+  class="secondary-button"
+>
+  Edit Tour
+</a>
+
+<a
+  href="{{ url_for('admin.tours') }}"
+  class="secondary-button"
+>
+  Back to Tours
+</a>
+
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tour-gallery-admin.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="gallery-admin-intro">
+
+  <div>
+    <span>Gallery Manager</span>
+
+    <h2>{{ tour.title }}</h2>
+
+    <p>
+      Upload JPG, PNG or WEBP images. Images are
+      optimized and saved as WEBP automatically.
+    </p>
+  </div>
+
+  <div class="gallery-count">
+    <strong>{{ images|length }}</strong>
+
+    <span>
+      of {{ maximum_images }} images
+    </span>
+  </div>
+
+</section>
+
+<section class="page-card">
+
+  <form
+    method="POST"
+    action="{{ url_for('admin.upload_tour_images', tour_id=tour.id) }}"
+    enctype="multipart/form-data"
+    class="gallery-upload-form"
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <label
+      for="galleryImages"
+      class="gallery-drop-zone"
+      id="galleryDropZone"
+    >
+
+      <span class="upload-icon">
+        ＋
+      </span>
+
+      <strong>
+        Select multiple tour photos
+      </strong>
+
+      <small>
+        JPG, PNG or WEBP · Maximum 8 MB per image
+      </small>
+
+      <input
+        type="file"
+        id="galleryImages"
+        name="gallery_images"
+        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+        multiple
+        required
+      >
+
+    </label>
+
+    <div
+      class="selected-file-list"
+      id="selectedGalleryFiles"
+    ></div>
+
+    <button
+      type="submit"
+      class="primary-button"
+    >
+      Upload Selected Images
+    </button>
+
+  </form>
+
+</section>
+
+{% if images %}
+
+  <section class="gallery-admin-grid">
+
+    {% for image in images %}
+
+      <article
+        class="gallery-admin-card {% if image.is_cover %}is-cover{% endif %}"
+      >
+
+        <div class="gallery-admin-image">
+
+          <img
+            src="{{ url_for('static', filename=image.image_path) }}"
+            alt="{{ image.alt_text or tour.title }}"
+          >
+
+          {% if image.is_cover %}
+
+            <span class="cover-badge">
+              Cover Image
+            </span>
+
+          {% else %}
+
+            <span class="order-badge">
+              #{{ loop.index }}
+            </span>
+
+          {% endif %}
+
+        </div>
+
+        <div class="gallery-admin-card-body">
+
+          <small class="original-filename">
+            {{ image.original_name or "Uploaded image" }}
+          </small>
+
+          <form
+            method="POST"
+            action="{{ url_for(
+              'admin.update_gallery_alt',
+              tour_id=tour.id,
+              image_id=image.id
+            ) }}"
+            class="alt-text-form"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <label>
+              Image Alt Text
+            </label>
+
+            <input
+              type="text"
+              name="alt_text"
+              value="{{ image.alt_text or '' }}"
+              maxlength="180"
+              placeholder="{{ tour.title }} photo"
+            >
+
+            <button
+              type="submit"
+              class="small-action-button"
+            >
+              Save Text
+            </button>
+
+          </form>
+
+          <div class="gallery-card-actions">
+
+            {% if not image.is_cover %}
+
+              <form
+                method="POST"
+                action="{{ url_for(
+                  'admin.set_gallery_cover',
+                  tour_id=tour.id,
+                  image_id=image.id
+                ) }}"
+              >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <button
+                  type="submit"
+                  class="cover-action-button"
+                >
+                  Set as Cover
+                </button>
+
+              </form>
+
+              <div class="gallery-order-buttons">
+
+                <form
+                  method="POST"
+                  action="{{ url_for(
+                    'admin.move_gallery_image',
+                    tour_id=tour.id,
+                    image_id=image.id
+                  ) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input
+                    type="hidden"
+                    name="direction"
+                    value="up"
+                  >
+
+                  <button
+                    type="submit"
+                    title="Move image earlier"
+                  >
+                    ←
+                  </button>
+                </form>
+
+                <form
+                  method="POST"
+                  action="{{ url_for(
+                    'admin.move_gallery_image',
+                    tour_id=tour.id,
+                    image_id=image.id
+                  ) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input
+                    type="hidden"
+                    name="direction"
+                    value="down"
+                  >
+
+                  <button
+                    type="submit"
+                    title="Move image later"
+                  >
+                    →
+                  </button>
+                </form>
+
+              </div>
+
+            {% else %}
+
+              <span class="cover-help">
+                This image appears first on the tour page.
+              </span>
+
+            {% endif %}
+
+            <form
+              method="POST"
+              action="{{ url_for(
+                'admin.delete_gallery_image',
+                tour_id=tour.id,
+                image_id=image.id
+              ) }}"
+              onsubmit="return confirm('Delete this gallery image?');"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+              <button
+                type="submit"
+                class="delete-gallery-button"
+              >
+                Delete
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    {% endfor %}
+
+  </section>
+
+{% else %}
+
+  <section class="empty-gallery-state">
+
+    <span>▧</span>
+
+    <h2>No gallery images yet</h2>
+
+    <p>
+      Upload the first group of images for this tour.
+    </p>
+
+  </section>
+
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/tour-gallery-admin.js') }}"
+></script>
+
+{% endblock %}

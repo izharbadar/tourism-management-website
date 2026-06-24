@@ -1,0 +1,14 @@
+
+{% extends "emails/base.html" %}
+{% block title %}New Tour Inquiry{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;color:#c18400;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">New Inquiry Alert</p>
+<h1 style="margin:0 0 12px;font-size:25px;">{{ inquiry.inquiry_number }}</h1>
+<p style="margin:0 0 20px;color:#667085;font-size:14px;line-height:1.7;">Hello {{ recipient.name }}, a new inquiry has been submitted.</p>
+<p style="margin:0 0 6px;"><strong>Customer:</strong> {{ inquiry.customer_name }}</p>
+<p style="margin:0 0 6px;"><strong>Email:</strong> {{ inquiry.customer_email }}</p>
+<p style="margin:0 0 6px;"><strong>Phone:</strong> {{ inquiry.customer_phone }}</p>
+<p style="margin:0 0 6px;"><strong>Tour:</strong> {{ inquiry.tour.title }}</p>
+<p style="margin:0 0 16px;"><strong>Message:</strong> {{ inquiry.message }}</p>
+<p style="margin:24px 0 0;"><a href="{{ admin_inquiry_url }}" style="display:inline-block;padding:13px 20px;border-radius:10px;background:#064f40;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;">Open Inquiry in Admin</a></p>
+{% endblock %}

@@ -1,0 +1,153 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+  {{ 'Add Review' if form_mode == 'add' else 'Edit Review' }}
+{% endblock %}
+
+{% block page_title %}
+  {{ 'Add Review' if form_mode == 'add' else 'Edit Review' }}
+{% endblock %}
+
+{% block page_subtitle %}
+Add a review manually or update a submitted customer review
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-reviews.css') }}"
+>
+{% endblock %}
+
+{% block top_actions %}
+<a href="{{ url_for('admin.reviews') }}" class="secondary-button">Back to Reviews</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-card review-form-card">
+
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-field full">
+      <label>Tour *</label>
+      <select name="tour_id" required>
+        <option value="">Select tour</option>
+        {% for tour in tours %}
+          {% set selected_tour = request.form.get('tour_id', review.tour_id if review else '') %}
+          <option value="{{ tour.id }}" {% if selected_tour|string == tour.id|string %}selected{% endif %}>
+            {{ tour.title }} — {{ tour.destination }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Reviewer Name *</label>
+      <input
+        type="text"
+        name="reviewer_name"
+        value="{{ request.form.get('reviewer_name', review.reviewer_name if review else '') }}"
+        maxlength="120"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Reviewer Email</label>
+      <input
+        type="email"
+        name="reviewer_email"
+        value="{{ request.form.get('reviewer_email', review.reviewer_email if review and review.reviewer_email else '') }}"
+        maxlength="190"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Rating *</label>
+      {% set selected_rating = request.form.get('rating', review.rating if review else 5) | int %}
+      <select name="rating" required>
+        {% for number in range(5, 0, -1) %}
+          <option value="{{ number }}" {% if selected_rating == number %}selected{% endif %}>
+            {{ '★' * number }} {{ number }}/5
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Review Date *</label>
+      <input
+        type="date"
+        name="review_date"
+        value="{{ request.form.get('review_date', review.review_date.isoformat() if review and review.review_date else '') }}"
+        required
+      >
+    </div>
+
+    <div class="form-field full">
+      <label>Review Title</label>
+      <input
+        type="text"
+        name="title"
+        value="{{ request.form.get('title', review.title if review and review.title else '') }}"
+        maxlength="180"
+        placeholder="An unforgettable trip"
+      >
+    </div>
+
+    <div class="form-field full">
+      <label>Review *</label>
+      <textarea
+        name="review_text"
+        rows="7"
+        maxlength="5000"
+        required
+      >{{ request.form.get('review_text', review.review_text if review else '') }}</textarea>
+    </div>
+
+    <div class="form-field">
+      <label>Status</label>
+      {% set selected_status = request.form.get('status', review.status if review else 'approved') %}
+      <select name="status">
+        <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Approved</option>
+        <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+        <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+
+    <div class="form-field review-checkbox-wrap">
+      <label class="checkbox-field">
+        <input
+          type="checkbox"
+          name="is_verified"
+          {% if request.form.get('is_verified') == 'on' or (not request.form and review and review.is_verified) %}checked{% endif %}
+        >
+        Show as verified traveler
+      </label>
+    </div>
+
+    <div class="form-field full">
+      <label>Internal Admin Note</label>
+      <textarea name="admin_note" rows="3">{{ request.form.get('admin_note', review.admin_note if review and review.admin_note else '') }}</textarea>
+    </div>
+
+    {% if review and review.source == 'customer' %}
+      <div class="review-form-note full">
+        This review was submitted by a customer. Editing and saving it will keep its original customer source and booking link.
+      </div>
+    {% endif %}
+
+    <div class="form-field full review-form-actions">
+      <button type="submit" class="primary-button">
+        {{ 'Add Review' if form_mode == 'add' else 'Save Changes' }}
+      </button>
+      <a href="{{ url_for('admin.reviews') }}" class="secondary-button">Cancel</a>
+    </div>
+
+  </form>
+
+</section>
+
+{% endblock %}

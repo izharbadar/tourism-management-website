@@ -1,0 +1,114 @@
+<section class="tour-reviews-section" id="tour-reviews">
+  <div class="page-container">
+
+    <div class="tour-review-heading">
+      <div>
+        <span>Traveler Feedback</span>
+        <h2>Reviews & Ratings</h2>
+      </div>
+
+      {% if review_summary.count %}
+        <div class="tour-review-heading-score">
+          <strong>{{ '%.1f'|format(review_summary.average) }}</strong>
+          <div>
+            <div class="public-review-stars" aria-label="Average rating {{ review_summary.average }} out of 5">
+              {% for number in range(1, 6) %}
+                <span class="{% if number <= review_summary.average|round(0, 'common')|int %}filled{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            <small>{{ review_summary.count }} review{% if review_summary.count != 1 %}s{% endif %}</small>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="tour-review-layout">
+
+      <aside class="tour-review-summary-card">
+        {% if review_summary.count %}
+          <div class="review-average-block">
+            <strong>{{ '%.1f'|format(review_summary.average) }}</strong>
+            <div class="public-review-stars large">
+              {% for number in range(1, 6) %}
+                <span class="{% if number <= review_summary.average|round(0, 'common')|int %}filled{% endif %}">★</span>
+              {% endfor %}
+            </div>
+            <p>Based on {{ review_summary.count }} approved review{% if review_summary.count != 1 %}s{% endif %}</p>
+          </div>
+
+          <div class="review-distribution">
+            {% for row in review_summary.distribution %}
+              <div>
+                <span>{{ row.rating }}★</span>
+                <div><i style="width: {{ row.percentage }}%;"></i></div>
+                <small>{{ row.count }}</small>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="review-average-block empty">
+            <strong>☆</strong>
+            <h3>Be the first to review</h3>
+            <p>Completed-trip reviews will appear here after approval.</p>
+          </div>
+        {% endif %}
+
+        <div class="tour-review-cta">
+          {% if current_user.is_authenticated and current_user.role == 'customer' %}
+            {% if customer_review and customer_review.booking %}
+              <span class="review-own-status status-{{ customer_review.status }}">Your review: {{ customer_review.status }}</span>
+              <a href="{{ url_for('customer.booking_review', booking_number=customer_review.booking.booking_number) }}">Edit Your Review</a>
+            {% elif reviewable_booking %}
+              <p>You completed this tour. Tell others about your experience.</p>
+              <a href="{{ url_for('customer.booking_review', booking_number=reviewable_booking.booking_number) }}">Write a Review</a>
+            {% else %}
+              <p>Reviews can be submitted after a completed booking.</p>
+              <a href="{{ url_for('customer.bookings') }}" class="secondary">View My Bookings</a>
+            {% endif %}
+          {% elif not current_user.is_authenticated %}
+            <p>Travelers with a completed booking can submit a verified review.</p>
+            <a href="{{ url_for('auth.login') }}">Login to Review</a>
+          {% endif %}
+        </div>
+      </aside>
+
+      <div class="public-review-list">
+        {% if approved_reviews %}
+          {% for review in approved_reviews %}
+            <article class="public-review-card">
+              <header>
+                <span class="public-review-avatar">{{ review.reviewer_name[0] | upper }}</span>
+
+                <div>
+                  <strong>{{ review.reviewer_name }}</strong>
+                  <small>
+                    {{ review.display_date.strftime('%d %B %Y') if review.display_date else '' }}
+                    {% if review.is_verified %}
+                      <b>✓ Verified traveler</b>
+                    {% endif %}
+                  </small>
+                </div>
+
+                <div class="public-review-stars">
+                  {% for number in range(1, 6) %}
+                    <span class="{% if number <= review.rating %}filled{% endif %}">★</span>
+                  {% endfor %}
+                </div>
+              </header>
+
+              {% if review.title %}<h3>{{ review.title }}</h3>{% endif %}
+              <p>{{ review.review_text }}</p>
+            </article>
+          {% endfor %}
+        {% else %}
+          <div class="public-review-empty">
+            <span>☆</span>
+            <h3>No approved reviews yet</h3>
+            <p>Approved traveler feedback will appear here.</p>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</section>

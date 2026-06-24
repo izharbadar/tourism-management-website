@@ -1,0 +1,400 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Customers
+{% endblock %}
+
+{% block page_title %}
+Customer Management
+{% endblock %}
+
+{% block page_subtitle %}
+View registered customers, booking activity and account status
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-customers.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="customer-summary-grid">
+
+  <article class="customer-summary-card">
+
+    <span class="customer-summary-icon">
+      ◎
+    </span>
+
+    <div>
+      <p>Total Customers</p>
+      <strong>{{ customer_stats.total }}</strong>
+    </div>
+
+  </article>
+
+  <article class="customer-summary-card">
+
+    <span class="customer-summary-icon active">
+      ✓
+    </span>
+
+    <div>
+      <p>Active Accounts</p>
+      <strong>{{ customer_stats.active }}</strong>
+    </div>
+
+  </article>
+
+  <article class="customer-summary-card">
+
+    <span class="customer-summary-icon inactive">
+      !
+    </span>
+
+    <div>
+      <p>Inactive Accounts</p>
+      <strong>{{ customer_stats.inactive }}</strong>
+    </div>
+
+  </article>
+
+  <article class="customer-summary-card">
+
+    <span class="customer-summary-icon new">
+      +
+    </span>
+
+    <div>
+      <p>New This Month</p>
+      <strong>{{ customer_stats.new_this_month }}</strong>
+    </div>
+
+  </article>
+
+</section>
+
+<section class="customer-page-card">
+
+  <form
+    method="GET"
+    action="{{ url_for('admin.customers') }}"
+    class="customer-filter-form"
+  >
+
+    <div class="customer-search-field">
+
+      <span>⌕</span>
+
+      <input
+        type="search"
+        name="search"
+        value="{{ search }}"
+        placeholder="Search name, email or phone"
+      >
+
+    </div>
+
+    <select name="status">
+
+      <option value="">
+        All account statuses
+      </option>
+
+      <option
+        value="active"
+        {% if selected_status == 'active' %}selected{% endif %}
+      >
+        Active customers
+      </option>
+
+      <option
+        value="inactive"
+        {% if selected_status == 'inactive' %}selected{% endif %}
+      >
+        Inactive customers
+      </option>
+
+    </select>
+
+    <select name="sort">
+
+      <option
+        value="newest"
+        {% if selected_sort == 'newest' %}selected{% endif %}
+      >
+        Newest first
+      </option>
+
+      <option
+        value="oldest"
+        {% if selected_sort == 'oldest' %}selected{% endif %}
+      >
+        Oldest first
+      </option>
+
+      <option
+        value="name"
+        {% if selected_sort == 'name' %}selected{% endif %}
+      >
+        Name A–Z
+      </option>
+
+      <option
+        value="bookings"
+        {% if selected_sort == 'bookings' %}selected{% endif %}
+      >
+        Most bookings
+      </option>
+
+      <option
+        value="revenue"
+        {% if selected_sort == 'revenue' %}selected{% endif %}
+      >
+        Highest paid value
+      </option>
+
+    </select>
+
+    <button
+      type="submit"
+      class="primary-button"
+    >
+      Filter
+    </button>
+
+    {% if search or selected_status or selected_sort != 'newest' %}
+
+      <a
+        href="{{ url_for('admin.customers') }}"
+        class="customer-clear-button"
+      >
+        Clear
+      </a>
+
+    {% endif %}
+
+  </form>
+
+  <div class="customer-results-heading">
+
+    <div>
+      <h2>Registered Customers</h2>
+
+      <p>
+        {{ pagination.total }}
+        customer{% if pagination.total != 1 %}s{% endif %}
+        match the selected filters.
+      </p>
+    </div>
+
+  </div>
+
+  {% if customers %}
+
+    <div class="customer-table-wrapper">
+
+      <table class="customer-table">
+
+        <thead>
+          <tr>
+            <th>Customer</th>
+            <th>Contact</th>
+            <th>Joined</th>
+            <th>Bookings</th>
+            <th>Inquiries</th>
+            <th>Paid Value</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for row in customers %}
+
+            {% set customer = row.customer %}
+
+            <tr>
+
+              <td>
+
+                <div class="customer-name-cell">
+
+                  <span class="customer-list-avatar">
+                    {{ customer.name[0] | upper }}
+                  </span>
+
+                  <div>
+                    <strong>
+                      {{ customer.name }}
+                    </strong>
+
+                    <small>
+                      Customer #{{ customer.id }}
+                    </small>
+                  </div>
+
+                </div>
+
+              </td>
+
+              <td>
+
+                <strong class="customer-contact-primary">
+                  {{ customer.email }}
+                </strong>
+
+                <small>
+                  {{ customer.phone or "No phone added" }}
+                </small>
+
+              </td>
+
+              <td>
+                {{ customer.created_at.strftime('%d %b %Y') }}
+              </td>
+
+              <td>
+                <strong>{{ row.booking_count }}</strong>
+              </td>
+
+              <td>
+                <strong>{{ row.inquiry_count }}</strong>
+              </td>
+
+              <td>
+                PKR
+                {{ "{:,.0f}".format(row.paid_revenue or 0) }}
+              </td>
+
+              <td>
+
+                {% if customer.is_active %}
+
+                  <span class="customer-status active">
+                    Active
+                  </span>
+
+                {% else %}
+
+                  <span class="customer-status inactive">
+                    Inactive
+                  </span>
+
+                {% endif %}
+
+              </td>
+
+              <td>
+
+                <a
+                  href="{{ url_for('admin.customer_detail', customer_id=customer.id) }}"
+                  class="customer-open-button"
+                >
+                  Open
+                </a>
+
+              </td>
+
+            </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    {% if pagination.pages > 1 %}
+
+      <nav
+        class="customer-pagination"
+        aria-label="Customer pages"
+      >
+
+        {% if pagination.has_previous %}
+
+          <a
+            href="{{ url_for(
+              'admin.customers',
+              page=pagination.previous_page,
+              search=search,
+              status=selected_status,
+              sort=selected_sort
+            ) }}"
+          >
+            ← Previous
+          </a>
+
+        {% else %}
+
+          <span class="disabled">
+            ← Previous
+          </span>
+
+        {% endif %}
+
+        <span>
+          Page {{ pagination.page }}
+          of {{ pagination.pages }}
+        </span>
+
+        {% if pagination.has_next %}
+
+          <a
+            href="{{ url_for(
+              'admin.customers',
+              page=pagination.next_page,
+              search=search,
+              status=selected_status,
+              sort=selected_sort
+            ) }}"
+          >
+            Next →
+          </a>
+
+        {% else %}
+
+          <span class="disabled">
+            Next →
+          </span>
+
+        {% endif %}
+
+      </nav>
+
+    {% endif %}
+
+  {% else %}
+
+    <div class="customer-empty-state">
+
+      <span>◎</span>
+
+      <h3>No customers found</h3>
+
+      <p>
+        Try changing the search or status filters.
+      </p>
+
+      <a
+        href="{{ url_for('admin.customers') }}"
+        class="primary-button"
+      >
+        View All Customers
+      </a>
+
+    </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

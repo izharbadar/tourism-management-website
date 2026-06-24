@@ -1,0 +1,423 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+Complete Booking | {{ tour.title }}
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-checkout.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="checkout-page">
+
+  <div class="page-container">
+
+    <div class="checkout-steps">
+
+      <div class="checkout-step completed">
+        <span>1</span>
+        Tour Details
+      </div>
+
+      <div class="checkout-step active">
+        <span>2</span>
+        Your Information
+      </div>
+
+      <div class="checkout-step">
+        <span>3</span>
+        Confirmation
+      </div>
+
+    </div>
+
+    <div class="checkout-heading">
+
+      <div>
+        <span class="checkout-eyebrow">
+          Complete Your Reservation
+        </span>
+
+        <h1>Review and Confirm Booking</h1>
+
+        <p>
+          Verify your contact information and choose
+          how you would like to pay.
+        </p>
+      </div>
+
+      <a
+        href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+        class="back-to-tour"
+      >
+        ← Back to Tour
+      </a>
+
+    </div>
+
+    <form
+      method="POST"
+      action="{{ url_for('customer.book_tour', slug=tour.slug) }}"
+      class="checkout-layout"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <input
+        type="hidden"
+        name="pricing_type"
+        value="{{ booking_summary.pricing_type }}"
+      >
+
+      <input
+        type="hidden"
+        name="quantity"
+        value="{{ booking_summary.quantity }}"
+      >
+
+      <input
+        type="hidden"
+        name="children"
+        value="{{ booking_summary.children }}"
+      >
+
+      <input
+        type="hidden"
+        name="travel_date"
+        value="{{ booking_summary.travel_date_raw }}"
+      >
+
+      <input
+        type="hidden"
+        name="special_request"
+        value="{{ booking_summary.special_request }}"
+      >
+
+      <div class="checkout-main">
+
+        <section class="checkout-card">
+
+          <div class="checkout-card-heading">
+
+            <span class="checkout-card-icon">
+              01
+            </span>
+
+            <div>
+              <h2>Traveler Details</h2>
+
+              <p>
+                Our team will use these details to
+                contact you about the booking.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="checkout-form-grid">
+
+            <div class="checkout-field full">
+
+              <label for="customerName">
+                Full Name *
+              </label>
+
+              <input
+                type="text"
+                id="customerName"
+                name="customer_name"
+                value="{{ current_user.name }}"
+                autocomplete="name"
+                required
+              >
+
+            </div>
+
+            <div class="checkout-field">
+
+              <label for="customerEmail">
+                Email Address *
+              </label>
+
+              <input
+                type="email"
+                id="customerEmail"
+                name="customer_email"
+                value="{{ current_user.email }}"
+                autocomplete="email"
+                required
+              >
+
+            </div>
+
+            <div class="checkout-field">
+
+              <label for="customerPhone">
+                WhatsApp Number *
+              </label>
+
+              <input
+                type="tel"
+                id="customerPhone"
+                name="customer_phone"
+                value="{{ current_user.phone or '' }}"
+                placeholder="+92 300 1234567"
+                autocomplete="tel"
+                required
+              >
+
+            </div>
+
+          </div>
+
+        </section>
+
+        <section class="checkout-card">
+
+          <div class="checkout-card-heading">
+
+            <span class="checkout-card-icon">
+              02
+            </span>
+
+            <div>
+              <h2>Payment Method</h2>
+
+              <p>
+                Select your preferred payment method.
+              </p>
+            </div>
+
+          </div>
+
+          <div class="payment-options">
+
+            <label class="payment-option">
+
+              <input
+                type="radio"
+                name="payment_method"
+                value="cash_on_pickup"
+                checked
+              >
+
+              <span class="payment-radio"></span>
+
+              <span class="payment-option-icon">
+                ₨
+              </span>
+
+              <span class="payment-option-copy">
+
+                <strong>Cash on Pickup</strong>
+
+                <small>
+                  Pay when the tour starts or at the
+                  agreed pickup point.
+                </small>
+
+              </span>
+
+            </label>
+
+            <label class="payment-option">
+
+              <input
+                type="radio"
+                name="payment_method"
+                value="online_card"
+              >
+
+              <span class="payment-radio"></span>
+
+              <span class="payment-option-icon">
+                ▣
+              </span>
+
+              <span class="payment-option-copy">
+
+                <strong>Online Card Payment</strong>
+
+                <small>
+                  Our team will share secure online
+                  payment instructions after confirmation.
+                </small>
+
+              </span>
+
+            </label>
+
+          </div>
+
+          <div class="payment-notice">
+
+            <span>i</span>
+
+            <p>
+              No card will be charged on this page.
+              Selecting online card payment records
+              your preference for our team.
+            </p>
+
+          </div>
+
+        </section>
+
+        <section class="checkout-card verify-card">
+
+          <label class="verification-check">
+
+            <input
+              type="checkbox"
+              required
+            >
+
+            <span>
+              I have reviewed the tour, travel date,
+              travelers, contact details and payment method.
+            </span>
+
+          </label>
+
+        </section>
+
+      </div>
+
+      <aside class="checkout-summary">
+
+        {% if tour.main_image %}
+
+          <img
+            src="{{ tour.main_image }}"
+            alt="{{ tour.title }}"
+            class="checkout-tour-image"
+          >
+
+        {% else %}
+
+          <div class="checkout-image-placeholder">
+            ⛰
+          </div>
+
+        {% endif %}
+
+        <div class="checkout-summary-content">
+
+          <span class="checkout-category">
+            {{ tour.category.name if tour.category else "Pakistan Tour" }}
+          </span>
+
+          <h2>{{ tour.title }}</h2>
+
+          <div class="summary-tour-meta">
+
+            <span>📍 {{ tour.destination }}</span>
+
+            <span>
+              ◷ {{ tour.duration_days }} Days
+            </span>
+
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row">
+
+            <span>Travel date</span>
+
+            <strong>
+              {{ booking_summary.travel_date.strftime("%d %B %Y") }}
+            </strong>
+
+          </div>
+
+          <div class="summary-row">
+
+            <span>Package</span>
+
+            <strong>
+              {{ booking_summary.quantity }}
+              {{ booking_summary.quantity_label }}
+            </strong>
+
+          </div>
+
+          {% if booking_summary.children %}
+
+            <div class="summary-row">
+
+              <span>Children</span>
+
+              <strong>
+                {{ booking_summary.children }}
+              </strong>
+
+            </div>
+
+          {% endif %}
+
+          <div class="summary-row">
+
+            <span>Total travelers</span>
+
+            <strong>
+              {{ booking_summary.total_travelers }}
+            </strong>
+
+          </div>
+
+          {% if booking_summary.special_request %}
+
+            <div class="summary-request">
+
+              <span>Special request</span>
+
+              <p>
+                {{ booking_summary.special_request }}
+              </p>
+
+            </div>
+
+          {% endif %}
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total">
+
+            <span>Total Amount</span>
+
+            <strong>
+              PKR {{ "{:,.0f}".format(booking_summary.total_amount) }}
+            </strong>
+
+          </div>
+
+          <button
+            type="submit"
+            class="confirm-booking-button"
+          >
+            Confirm Booking
+          </button>
+
+          <p class="summary-security">
+            🔒 Your information is used only to
+            process this reservation.
+          </p>
+
+        </div>
+
+      </aside>
+
+    </form>
+
+  </div>
+
+</section>
+
+{% endblock %}

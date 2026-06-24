@@ -1,0 +1,211 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Reviews{% endblock %}
+{% block page_title %}Reviews & Ratings{% endblock %}
+{% block page_subtitle %}
+Moderate customer reviews and add reviews from the admin panel
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-reviews.css') }}"
+>
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.add_review') }}"
+  class="primary-button"
+>
+  + Add Review
+</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="review-stat-grid">
+  <article>
+    <span>★</span>
+    <div><small>Total Reviews</small><strong>{{ stats.total }}</strong></div>
+  </article>
+  <article>
+    <span>◷</span>
+    <div><small>Pending Approval</small><strong>{{ stats.pending }}</strong></div>
+  </article>
+  <article>
+    <span>✓</span>
+    <div><small>Approved</small><strong>{{ stats.approved }}</strong></div>
+  </article>
+  <article>
+    <span>＋</span>
+    <div><small>Admin Added</small><strong>{{ stats.admin_added }}</strong></div>
+  </article>
+</section>
+
+<section class="page-card">
+
+  <form
+    method="GET"
+    action="{{ url_for('admin.reviews') }}"
+    class="review-filter-bar"
+  >
+    <input
+      type="search"
+      name="search"
+      value="{{ search }}"
+      placeholder="Search reviewer, tour or review text"
+    >
+
+    <select name="status">
+      <option value="">All statuses</option>
+      <option value="pending" {% if selected_status == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if selected_status == 'approved' %}selected{% endif %}>Approved</option>
+      <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+    </select>
+
+    <select name="source">
+      <option value="">All sources</option>
+      <option value="customer" {% if selected_source == 'customer' %}selected{% endif %}>Customer submitted</option>
+      <option value="admin" {% if selected_source == 'admin' %}selected{% endif %}>Admin added</option>
+    </select>
+
+    <select name="rating">
+      <option value="">All ratings</option>
+      {% for number in range(5, 0, -1) %}
+        <option value="{{ number }}" {% if selected_rating == number %}selected{% endif %}>
+          {{ number }} Star{% if number != 1 %}s{% endif %}
+        </option>
+      {% endfor %}
+    </select>
+
+    <button type="submit" class="primary-button">Filter</button>
+
+    {% if search or selected_status or selected_source or selected_rating %}
+      <a href="{{ url_for('admin.reviews') }}" class="secondary-button">Clear</a>
+    {% endif %}
+  </form>
+
+  <div class="review-list-heading">
+    <div>
+      <h2>All Reviews</h2>
+      <p>{{ total }} review{% if total != 1 %}s{% endif %} found</p>
+    </div>
+  </div>
+
+  {% if reviews %}
+    <div class="review-admin-list">
+
+      {% for review in reviews %}
+        <article class="review-admin-card">
+
+          <div class="review-admin-main">
+            <div class="review-admin-topline">
+              <div class="review-avatar">
+                {{ review.reviewer_name[0] | upper }}
+              </div>
+
+              <div class="review-person">
+                <strong>{{ review.reviewer_name }}</strong>
+                <small>
+                  {{ review.reviewer_email or 'No email added' }}
+                </small>
+              </div>
+
+              <span class="review-source source-{{ review.source }}">
+                {{ 'Customer' if review.source == 'customer' else 'Admin added' }}
+              </span>
+
+              <span class="review-status status-{{ review.status }}">
+                {{ review.status }}
+              </span>
+            </div>
+
+            <div class="review-stars" aria-label="{{ review.rating }} out of 5 stars">
+              {% for number in range(1, 6) %}
+                <span class="{% if number <= review.rating %}filled{% endif %}">★</span>
+              {% endfor %}
+            </div>
+
+            {% if review.title %}
+              <h3>{{ review.title }}</h3>
+            {% endif %}
+
+            <p class="review-copy">{{ review.review_text }}</p>
+
+            <div class="review-admin-meta">
+              <span>Tour: <strong>{{ review.tour.title }}</strong></span>
+              <span>Date: {{ review.display_date.strftime('%d %b %Y') if review.display_date else '—' }}</span>
+              {% if review.is_verified %}
+                <span class="verified-review">✓ Verified traveler</span>
+              {% endif %}
+              {% if review.booking %}
+                <span>Booking: {{ review.booking.booking_number }}</span>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="review-admin-actions">
+            <a
+              href="{{ url_for('admin.edit_review', review_id=review.id) }}"
+              class="secondary-button"
+            >
+              Edit
+            </a>
+
+            {% if review.status != 'approved' %}
+              <form method="POST" action="{{ url_for('admin.review_status', review_id=review.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="status" value="approved">
+                <button class="review-action approve" type="submit">Approve</button>
+              </form>
+            {% endif %}
+
+            {% if review.status != 'rejected' %}
+              <form method="POST" action="{{ url_for('admin.review_status', review_id=review.id) }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="status" value="rejected">
+                <button class="review-action reject" type="submit">Reject</button>
+              </form>
+            {% endif %}
+
+            <form
+              method="POST"
+              action="{{ url_for('admin.delete_review', review_id=review.id) }}"
+              onsubmit="return confirm('Delete this review permanently?');"
+            >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="danger-button" type="submit">Delete</button>
+            </form>
+          </div>
+
+        </article>
+      {% endfor %}
+
+    </div>
+
+    {% if pages > 1 %}
+      <nav class="review-pagination" aria-label="Review pages">
+        {% if page > 1 %}
+          <a href="{{ url_for('admin.reviews', page=page-1, search=search, status=selected_status, source=selected_source, rating=selected_rating) }}">← Previous</a>
+        {% else %}
+          <span>← Previous</span>
+        {% endif %}
+
+        <strong>Page {{ page }} of {{ pages }}</strong>
+
+        {% if page < pages %}
+          <a href="{{ url_for('admin.reviews', page=page+1, search=search, status=selected_status, source=selected_source, rating=selected_rating) }}">Next →</a>
+        {% else %}
+          <span>Next →</span>
+        {% endif %}
+      </nav>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-state">No reviews found.</div>
+  {% endif %}
+
+</section>
+
+{% endblock %}

@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+
+  {% include "public/_seo_meta.html" %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-destinations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-tours-carousel.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-final-sections.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage-live-search.css') }}">
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/exact-home-footer.css') }}"
+  >
+
+</head>
+
+
+
+
+
+<body>
+
+<header class="site-header" id="siteHeader">
+    <div class="header-container">
+
+        <!-- Logo -->
+        <a href="/" class="header-logo">
+            <img src="{{ url_for('static', filename='images/logo.png') }}"
+                 alt="Capture Pakistan">
+        </a>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn"
+                id="mobileMenuBtn"
+                type="button"
+                aria-label="Open navigation menu"
+                aria-expanded="false">
+
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Navigation -->
+        <nav class="main-navigation" id="mainNavigation">
+            <a href="{{ url_for('public.home') }}" class="nav-link active">Home</a>
+            <a href="{{ url_for('public.destinations') }}" class="nav-link">Destinations</a>
+            <a href="{{ url_for('public.public_tours') }}" class="nav-link">Tours</a>
+            <a href="{{ url_for('public.trekking') }}" class="nav-link">Trekking</a>
+            <a href="{{ url_for('public.about') }}" class="nav-link">About Us</a>
+            <a href="{{ url_for('public.gallery_page') }}" class="nav-link">Gallery</a>
+            <a href="{{ url_for('public.pakistan_visa') }}" class="nav-link">Pakistan Visa</a>
+            <a href="{{ url_for('public.contact') }}" class="nav-link">Contact Us</a>
+        </nav>
+
+        <!-- Header Right Side -->
+        <div class="header-actions">
+
+            <!-- Stylish Phone Number -->
+            <a href="tel:{{ site_settings.phone_link }}" class="header-phone">
+                <span class="phone-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2
+                        19.79 19.79 0 0 1-8.63-3.07
+                        19.5 19.5 0 0 1-6-6
+                        19.79 19.79 0 0 1-3.07-8.67
+                        A2 2 0 0 1 4.11 2h3
+                        a2 2 0 0 1 2 1.72
+                        c.12.9.33 1.78.62 2.63
+                        a2 2 0 0 1-.45 2.11L8 9.73
+                        a16 16 0 0 0 6 6l1.27-1.27
+                        a2 2 0 0 1 2.11-.45
+                        c.85.29 1.73.5 2.63.62
+                        A2 2 0 0 1 22 16.92z"/>
+                    </svg>
+                </span>
+
+                <span class="phone-content">
+                    <small>Call for bookings</small>
+                    <strong>{{ site_settings.phone_display }}</strong>
+                </span>
+            </a>
+
+            <!-- Login Dropdown -->
+     
+{% if current_user.is_authenticated %}
+
+<div class="profile-menu" data-profile-menu>
+
+  <button
+    type="button"
+    class="profile-trigger"
+    data-profile-trigger
+    aria-expanded="false"
+  >
+    <span class="profile-avatar">
+      {{ current_user.name[0] | upper }}
+    </span>
+
+    <span class="profile-text">
+      <strong>{{ current_user.name }}</strong>
+
+      <small>
+        {% if current_user.role == "admin" %}
+          Manage Admin Panel
+        {% else %}
+          Manage Account
+        {% endif %}
+      </small>
+    </span>
+
+    <span class="profile-arrow">⌄</span>
+  </button>
+
+  <div class="profile-dropdown" data-profile-dropdown>
+
+    {% if current_user.role == "admin" %}
+
+      <div class="dropdown-heading">
+        <span class="dropdown-avatar">
+          {{ current_user.name[0] | upper }}
+        </span>
+
+        <div>
+          <strong>{{ current_user.name }}</strong>
+          <small>Administrator</small>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <a href="{{ url_for('admin.dashboard') }}" class="profile-option">
+        <span class="option-icon">▦</span>
+        <span>
+          <strong>Dashboard</strong>
+          <small>View admin overview</small>
+        </span>
+      </a>
+
+      <a href="{{ url_for('admin.tours') }}" class="profile-option">
+        <span class="option-icon">⛰</span>
+        <span>
+          <strong>Manage Tours</strong>
+          <small>Add and edit tours</small>
+        </span>
+      </a>
+
+      <a href="{{ url_for('admin.bookings') }}" class="profile-option">
+        <span class="option-icon">▣</span>
+        <span>
+          <strong>Bookings</strong>
+          <small>Manage bookings</small>
+        </span>
+      </a>
+
+      <a href="{{ url_for('admin.inquiries') }}" class="profile-option">
+        <span class="option-icon">✉</span>
+        <span>
+          <strong>Inquiries</strong>
+          <small>View customer requests</small>
+        </span>
+      </a>
+
+    {% else %}
+
+      <div class="dropdown-heading">
+        <span class="dropdown-avatar">
+          {{ current_user.name[0] | upper }}
+        </span>
+
+        <div>
+          <strong>{{ current_user.name }}</strong>
+          <small>Customer Account</small>
+        </div>
+      </div>
+
+      <div class="dropdown-divider"></div>
+
+      <a href="{{ url_for('customer.dashboard') }}" class="profile-option">
+        <span class="option-icon">▦</span>
+        <span>
+          <strong>My Dashboard</strong>
+          <small>View account overview</small>
+        </span>
+      </a>
+
+      <a href="{{ url_for('customer.bookings') }}" class="profile-option">
+        <span class="option-icon">▣</span>
+        <span>
+          <strong>My Bookings</strong>
+          <small>View booked tours</small>
+        </span>
+      </a>
+
+    {% endif %}
+
+    <div class="dropdown-divider"></div>
+
+    <a href="{{ url_for('auth.logout') }}" class="profile-option logout-option">
+      <span class="option-icon">↪</span>
+      <span>
+        <strong>Logout</strong>
+        <small>Sign out of your account</small>
+      </span>
+    </a>
+
+  </div>
+</div>
+
+{% else %}
+
+<a href="{{ url_for('auth.login') }}" class="header-login-btn">
+  Login
+</a>
+
+<a href="{{ url_for('auth.register') }}" class="btn btn-primary">
+  Register
+</a>
+
+{% endif %}
+
+      <!-- End of Login Dropdown -->
+
+     
+        </div>
+    </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-shade"></div>
+    <div class="container hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow light">CAPTURE THE BEAUTY OF</p>
+        <h1>PAKISTAN</h1>
+        <p class="script-line">Unseen. Untouched. Unforgettable.</p>
+        <p class="hero-text">From the majestic mountains to vibrant culture, we take you to the heart of Pakistan.</p>
+        <a class="btn btn-gold" href="#packages">Explore Tours <i class="fa-solid fa-arrow-right"></i></a>
+      </div>
+
+      <div class="hero-stamp" aria-hidden="true">
+        <p>CAPTURE MOMENTS</p>
+        <span>Discover</span>
+        <strong>PAKISTAN</strong>
+        <small>REGISTERED COMPANY</small>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <section class="tour-search premium-tour-search">
+
+    <form
+      class="container search-panel premium-search-panel"
+      id="tourSearchForm"
+      method="GET"
+      action="{{ url_for('public.public_tours') }}"
+    >
+
+      <div class="search-field live-tour-search-field premium-live-search-field">
+
+        <span class="premium-search-icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+        </span>
+
+        <div
+          class="live-tour-search"
+          data-tour-live-search
+          data-search-endpoint="{{ url_for('public.tour_search_api') }}"
+          data-all-tours-url="{{ url_for('public.public_tours') }}"
+        >
+
+          <label for="homepageTourSearch">
+            Search Pakistan Tours
+          </label>
+
+          <div class="live-tour-search-input-row">
+
+            <input
+              id="homepageTourSearch"
+              class="live-tour-search-input"
+              type="search"
+              name="search"
+              placeholder="Where do you want to go?"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
+              aria-autocomplete="list"
+              aria-controls="homepageTourSearchDropdown"
+              aria-expanded="false"
+            >
+
+            <button
+              type="button"
+              class="live-tour-search-clear"
+              data-live-search-clear
+              aria-label="Clear search"
+              hidden
+            >
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+
+          </div>
+
+          <div
+            class="live-tour-search-dropdown"
+            id="homepageTourSearchDropdown"
+            data-live-search-dropdown
+            role="listbox"
+            aria-label="Tour search suggestions"
+            hidden
+          >
+
+            <div
+              class="live-tour-search-loading"
+              data-live-search-loading
+              hidden
+            >
+              <span></span>
+              Searching available tours...
+            </div>
+
+            <div
+              class="live-tour-search-results"
+              data-live-search-results
+            ></div>
+
+            <a
+              href="{{ url_for('public.public_tours') }}"
+              class="live-tour-search-view-all"
+              data-live-search-view-all
+            >
+              <span>
+                <i class="fa-solid fa-compass"></i>
+                Browse all tours
+              </span>
+
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <button
+        class="premium-search-submit"
+        type="submit"
+      >
+        <span>Search Tours</span>
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- DESTINATIONS -->
+  <section class="section destinations" id="destinations">
+    <div class="container">
+
+      <div class="section-title-row">
+
+        <div>
+          <p class="eyebrow">EXPLORE THE BEAUTY</p>
+          <h2>Top Destinations</h2>
+        </div>
+
+        <div class="slider-buttons">
+
+          <button
+            class="circle-btn"
+            type="button"
+            data-scroll="destinationsTrack"
+            data-direction="-1"
+            aria-label="Show previous destinations"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </button>
+
+          <button
+            class="circle-btn"
+            type="button"
+            data-scroll="destinationsTrack"
+            data-direction="1"
+            aria-label="Show next destinations"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </button>
+
+        </div>
+
+      </div>
+
+      {% if destinations %}
+
+        <div
+          class="cards-track destination-track"
+          id="destinationsTrack"
+          aria-label="Pakistan destinations"
+        >
+
+          {% for destination in destinations %}
+
+            <a
+              href="{{ url_for('public.destination_detail', slug=destination.slug) }}"
+              class="destination-card"
+              aria-label="View tours for {{ destination.name }}"
+            >
+
+              {% if destination.cover_image %}
+
+                <img
+                  src="{{ destination.cover_image }}"
+                  alt="{{ destination.name }} tours"
+                  loading="lazy"
+                >
+
+              {% else %}
+
+                <img
+                  src="{{ url_for('static', filename='images/hero.jpg') }}"
+                  alt="{{ destination.name }}"
+                  loading="lazy"
+                >
+
+              {% endif %}
+
+              <div class="dark-gradient"></div>
+
+              <div class="card-caption">
+
+                <h3>{{ destination.name }}</h3>
+
+                <p>
+                  <i class="fa-solid fa-location-dot"></i>
+
+                  {{ destination.tour_count }}
+                  {{ "Tour" if destination.tour_count == 1 else "Tours" }}
+                  Available
+                </p>
+
+              </div>
+
+              <span class="destination-card-arrow">
+                <i class="fa-solid fa-arrow-right"></i>
+              </span>
+
+            </a>
+
+          {% endfor %}
+
+        </div>
+
+      {% else %}
+
+        <div class="destination-empty-state">
+
+          <i class="fa-solid fa-location-dot"></i>
+
+          <h3>No destinations available yet</h3>
+
+          <p>
+            Add a published tour from the admin panel and enter
+            its destination. It will appear here automatically.
+          </p>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+  </section>
+
+  <!-- TOUR PACKAGES -->
+  <section
+    class="section packages-section tours-carousel-section"
+    id="packages"
+  >
+
+    <div class="container">
+
+      <div class="section-title-row tours-carousel-heading">
+
+        <div>
+
+          <p class="eyebrow">
+            HANDPICKED EXPERIENCES
+          </p>
+
+          <h2>Our Tour Packages</h2>
+
+          <p class="tours-carousel-intro">
+            Explore our latest group tours, family trips and
+            unforgettable adventures across Pakistan.
+          </p>
+
+        </div>
+
+        <div class="tours-heading-actions">
+
+          <div class="slider-buttons tours-slider-buttons">
+
+            <button
+              class="circle-btn"
+              type="button"
+              data-tour-scroll="homepageToursTrack"
+              data-direction="-1"
+              aria-label="Show previous tours"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button
+              class="circle-btn"
+              type="button"
+              data-tour-scroll="homepageToursTrack"
+              data-direction="1"
+              aria-label="Show next tours"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+          </div>
+
+          <a
+            href="{{ url_for('public.public_tours') }}"
+            class="solid-link"
+          >
+            View All Packages
+            <i class="fa-solid fa-chevron-right"></i>
+          </a>
+
+        </div>
+
+      </div>
+
+      {% if homepage_tours %}
+
+        <div
+          class="homepage-tours-shell"
+          data-tour-carousel
+          data-autoplay-delay="4500"
+        >
+
+          <div
+            class="homepage-tours-track"
+            id="homepageToursTrack"
+            aria-label="Available Capture Pakistan tours"
+          >
+
+            {% for tour in homepage_tours %}
+
+              <article class="homepage-tour-card">
+
+                <a
+                  href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                  class="homepage-tour-image"
+                  aria-label="View {{ tour.title }}"
+                >
+
+                  {% if tour.main_image %}
+
+                    <img
+                      src="{{ tour.main_image }}"
+                      alt="{{ tour.title }}"
+                      loading="lazy"
+                    >
+
+                  {% else %}
+
+                    <img
+                      src="{{ url_for('static', filename='images/tour-hunza.jpg') }}"
+                      alt="{{ tour.title }}"
+                      loading="lazy"
+                    >
+
+                  {% endif %}
+
+                  <span class="homepage-tour-overlay"></span>
+
+                  <span class="homepage-tour-duration">
+                    <i class="fa-regular fa-clock"></i>
+
+                    {{ tour.duration_days }}
+                    Day{% if tour.duration_days != 1 %}s{% endif %}
+                  </span>
+
+                  {% if tour.is_featured %}
+
+                    <span class="homepage-tour-featured">
+                      Featured
+                    </span>
+
+                  {% endif %}
+
+                  <span class="homepage-tour-open-icon">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </span>
+
+                </a>
+
+                <div class="homepage-tour-content">
+
+                  <div class="homepage-tour-location">
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                    <span>
+                      {{ tour.destination }}
+                    </span>
+
+                  </div>
+
+                  <h3>
+
+                    <a
+                      href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                    >
+                      {{ tour.title }}
+                    </a>
+
+                  </h3>
+
+                  {% if tour.short_description %}
+
+                    <p class="homepage-tour-description">
+                      {{ tour.short_description | truncate(115, True, '…') }}
+                    </p>
+
+                  {% else %}
+
+                    <p class="homepage-tour-description">
+                      Discover a carefully planned Pakistan tour
+                      with memorable experiences and reliable support.
+                    </p>
+
+                  {% endif %}
+
+                  <div class="homepage-tour-details">
+
+                    <span>
+                      <i class="fa-solid fa-user-group"></i>
+                      Group & Private
+                    </span>
+
+                    <span>
+                      <i class="fa-solid fa-shield-heart"></i>
+                      Guided Tour
+                    </span>
+
+                  </div>
+
+                  <div class="homepage-tour-footer">
+
+                    <div class="homepage-tour-price">
+
+                      <small>Starting from</small>
+
+                      <strong>
+                        {{ site_settings.currency_symbol or 'PKR' }}
+                        {{ "{:,.0f}".format(tour.base_price or 0) }}
+                      </strong>
+
+                      <span>per person</span>
+
+                    </div>
+
+                    <a
+                      href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                      class="homepage-tour-button"
+                    >
+                      View Tour
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            {% endfor %}
+
+          </div>
+
+
+
+        </div>
+
+      {% else %}
+
+        <div class="homepage-tours-empty">
+
+          <span>
+            <i class="fa-solid fa-mountain-sun"></i>
+          </span>
+
+          <h3>Tours will appear here automatically</h3>
+
+          <p>
+            Publish a tour from the admin panel to display it
+            on the homepage.
+          </p>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </section>
+
+  <!-- TREKKING -->
+  <section
+    class="section trekking-section dynamic-trekking-section"
+    id="trekking"
+  >
+
+    <div class="container">
+
+      <div class="section-title-row light-title trekking-title-row">
+
+        <div>
+
+          <p class="eyebrow gold">
+            TREK. EXPLORE. CONQUER.
+          </p>
+
+          <h2>Trekking & Expeditions</h2>
+
+          <p class="trekking-section-intro">
+            Discover our published trekking tours, lake hikes,
+            base-camp expeditions and high-altitude adventures.
+          </p>
+
+        </div>
+
+        <div class="trekking-heading-actions">
+
+          <div class="trekking-slider-buttons">
+
+            <button
+              type="button"
+              class="trekking-circle-button"
+              data-trekking-scroll="trekkingToursTrack"
+              data-direction="-1"
+              aria-label="Show previous trekking tours"
+            >
+              <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <button
+              type="button"
+              class="trekking-circle-button"
+              data-trekking-scroll="trekkingToursTrack"
+              data-direction="1"
+              aria-label="Show next trekking tours"
+            >
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+          </div>
+
+          <a
+            href="{{ url_for('public.category_detail', slug='trekking-expeditions') }}"
+            class="outline-link"
+          >
+            View All Treks
+            <i class="fa-solid fa-chevron-right"></i>
+          </a>
+
+        </div>
+
+      </div>
+
+      {% if trekking_tours %}
+
+        <div
+          class="trekking-carousel-shell"
+          data-trekking-carousel
+          data-autoplay-delay="4500"
+        >
+
+          <div
+            class="trekking-carousel-track"
+            id="trekkingToursTrack"
+            aria-label="Trekking and expedition tours"
+          >
+
+            {% for tour in trekking_tours %}
+
+              <article class="dynamic-trek-card">
+
+                <a
+                  href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                  class="dynamic-trek-image"
+                  aria-label="View {{ tour.title }}"
+                >
+
+                  {% if tour.main_image %}
+
+                    <img
+                      src="{{ tour.main_image }}"
+                      alt="{{ tour.title }}"
+                      loading="lazy"
+                    >
+
+                  {% else %}
+
+                    <img
+                      src="{{ url_for('static', filename='images/laila-peak.jpg') }}"
+                      alt="{{ tour.title }}"
+                      loading="lazy"
+                    >
+
+                  {% endif %}
+
+                  <span class="dynamic-trek-overlay"></span>
+
+                  <span class="dynamic-trek-duration">
+                    <i class="fa-regular fa-clock"></i>
+
+                    {{ tour.duration_days }}
+                    Day{% if tour.duration_days != 1 %}s{% endif %}
+                  </span>
+
+                  {% if tour.is_featured %}
+
+                    <span class="dynamic-trek-featured">
+                      Featured
+                    </span>
+
+                  {% endif %}
+
+                </a>
+
+                <div class="dynamic-trek-content">
+
+                  <div class="dynamic-trek-location">
+
+                    <i class="fa-solid fa-location-dot"></i>
+
+                    <span>{{ tour.destination }}</span>
+
+                  </div>
+
+                  <h3>
+
+                    <a
+                      href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                    >
+                      {{ tour.title }}
+                    </a>
+
+                  </h3>
+
+                  <div class="dynamic-trek-meta">
+
+                    <span>
+                      <i class="fa-solid fa-person-hiking"></i>
+                      {{ tour.tour_type | replace('_', ' ') | title }}
+                    </span>
+
+                    <span>
+                      <i class="fa-solid fa-shield-heart"></i>
+                      Guided
+                    </span>
+
+                  </div>
+
+                  <div class="dynamic-trek-footer">
+
+                    <div>
+
+                      <small>Starting from</small>
+
+                      <strong>
+                        {{ site_settings.currency_symbol or 'PKR' }}
+                        {{ "{:,.0f}".format(tour.base_price or 0) }}
+                      </strong>
+
+                    </div>
+
+                    <a
+                      href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+                      aria-label="Open {{ tour.title }}"
+                    >
+                      <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                  </div>
+
+                </div>
+
+              </article>
+
+            {% endfor %}
+
+          </div>
+
+        </div>
+
+      {% else %}
+
+        <div class="trekking-empty-state">
+
+          <span>
+            <i class="fa-solid fa-person-hiking"></i>
+          </span>
+
+          <h3>No trekking tours published yet</h3>
+
+          <p>
+            Assign a published tour to the
+            “Trekking & Expeditions” category and it will
+            appear here automatically.
+          </p>
+
+        </div>
+
+      {% endif %}
+
+    </div>
+
+  </section>
+
+
+
+  <!-- GOOGLE REVIEWS -->
+  <section
+    class="section google-reviews-section"
+    id="reviews"
+  >
+
+    <div class="container google-reviews-grid">
+
+      <div class="google-reviews-copy">
+
+        <div class="google-brand-lockup">
+
+          <span class="google-g" aria-hidden="true">
+            <b>G</b>
+          </span>
+
+          <div>
+            <small>Customer feedback</small>
+            <strong>Reviews on Google</strong>
+          </div>
+
+        </div>
+
+        <p class="eyebrow">
+          TRUSTED BY TRAVELERS
+        </p>
+
+        <h2>
+          Real travel experiences,
+          shared publicly on Google
+        </h2>
+
+        <p class="google-reviews-description">
+          Explore feedback from travelers who have discovered
+          Pakistan with our team. Open our public Google Business
+          Profile to read the latest reviews and add your own.
+        </p>
+
+        <div class="google-review-benefits">
+
+          <span>
+            <i class="fa-solid fa-circle-check"></i>
+            Public traveler feedback
+          </span>
+
+          <span>
+            <i class="fa-solid fa-circle-check"></i>
+            Google Business Profile
+          </span>
+
+          <span>
+            <i class="fa-solid fa-circle-check"></i>
+            Transparent customer experiences
+          </span>
+
+        </div>
+
+        <div class="google-review-actions">
+
+          <a
+            href="{{ site_settings.google_profile_url or 'https://share.google/itoWmWFA9XMoo80iP' }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="google-review-primary"
+          >
+            <span class="google-button-g">G</span>
+            Read Google Reviews
+            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+          </a>
+
+          <a
+            href="{{ site_settings.google_profile_url or 'https://share.google/itoWmWFA9XMoo80iP' }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="google-review-secondary"
+          >
+            Write a Review
+          </a>
+
+        </div>
+
+      </div>
+
+      <div class="google-profile-embed-card">
+
+        <div class="google-profile-card-top">
+
+          <div class="google-mini-logo">
+            G
+          </div>
+
+          <div>
+            <strong>
+              {{ site_settings.site_name }}
+            </strong>
+
+            <span>
+              Google Business Profile
+            </span>
+          </div>
+
+          <i class="fa-solid fa-location-dot"></i>
+
+        </div>
+
+        <div class="google-map-frame">
+
+          <iframe
+            src="{{ site_settings.google_reviews_embed_url or 'https://www.google.com/maps?q=Capture%20Pakistan%20Tourism%20Lahore&output=embed' }}"
+            title="{{ site_settings.site_name }} on Google Maps"
+            loading="lazy"
+            allowfullscreen
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+
+        </div>
+
+        <div class="google-profile-card-bottom">
+
+          <div>
+
+            <span class="google-stars" aria-hidden="true">
+              ★★★★★
+            </span>
+
+            <small>
+              View current rating and reviews directly on Google
+            </small>
+
+          </div>
+
+          <a
+            href="{{ site_settings.google_profile_url or 'https://share.google/itoWmWFA9XMoo80iP' }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Google Business Profile"
+          >
+            <i class="fa-solid fa-arrow-right"></i>
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- CONTACT & PARTNERS -->
+  <section
+    class="section homepage-contact-section"
+    id="homepage-contact"
+  >
+
+    <div class="container">
+
+      <div class="homepage-contact-heading">
+
+        <div>
+
+          <p class="eyebrow gold">
+            PLAN YOUR PAKISTAN JOURNEY
+          </p>
+
+          <h2>
+            Speak directly with our travel team
+          </h2>
+
+          <p>
+            Ask about a group trip, private tour, trekking
+            expedition, visa support or a fully customized itinerary.
+          </p>
+
+        </div>
+
+        <a
+          href="https://wa.me/{{ site_settings.whatsapp_number }}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="homepage-whatsapp-highlight"
+        >
+          <i class="fa-brands fa-whatsapp"></i>
+
+          <span>
+            <small>Fastest response</small>
+            <strong>
+              WhatsApp
+              {{ site_settings.phone_display }}
+            </strong>
+          </span>
+
+          <i class="fa-solid fa-arrow-right"></i>
+        </a>
+
+      </div>
+
+      <div class="homepage-contact-grid">
+
+        <div class="homepage-contact-information">
+
+          <div class="homepage-contact-cards">
+
+            <a
+              href="mailto:{{ site_settings.primary_email }}"
+              class="homepage-contact-card"
+            >
+
+              <span>
+                <i class="fa-solid fa-envelope"></i>
+              </span>
+
+              <div>
+                <small>Email Our Team</small>
+                <strong>
+                  {{ site_settings.primary_email }}
+                </strong>
+              </div>
+
+            </a>
+
+            <div class="homepage-contact-card">
+
+              <span>
+                <i class="fa-solid fa-location-dot"></i>
+              </span>
+
+              <div>
+                <small>Office Address</small>
+                <strong>
+                  {{ site_settings.office_address }}
+                </strong>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div class="homepage-social-panel">
+
+            <div>
+
+              <p class="eyebrow">
+                FOLLOW OUR JOURNEYS
+              </p>
+
+              <h3>Connect With Capture Pakistan</h3>
+
+            </div>
+
+            <div class="homepage-social-buttons">
+
+              {% if site_settings.instagram_url %}
+
+                <a
+                  href="{{ site_settings.instagram_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  class="social-instagram"
+                >
+                  <i class="fa-brands fa-instagram"></i>
+                </a>
+
+              {% endif %}
+
+              {% if site_settings.facebook_url %}
+
+                <a
+                  href="{{ site_settings.facebook_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  class="social-facebook"
+                >
+                  <i class="fa-brands fa-facebook-f"></i>
+                </a>
+
+              {% endif %}
+
+              {% if site_settings.youtube_url %}
+
+                <a
+                  href="{{ site_settings.youtube_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="YouTube"
+                  class="social-youtube"
+                >
+                  <i class="fa-brands fa-youtube"></i>
+                </a>
+
+              {% endif %}
+
+              {% if site_settings.tiktok_url %}
+
+                <a
+                  href="{{ site_settings.tiktok_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  class="social-tiktok"
+                >
+                  <i class="fa-brands fa-tiktok"></i>
+                </a>
+
+              {% endif %}
+
+              {% if site_settings.linkedin_url %}
+
+                <a
+                  href="{{ site_settings.linkedin_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  class="social-linkedin"
+                >
+                  <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+
+              {% endif %}
+
+              {% if site_settings.whatsapp_number %}
+
+                <a
+                  href="https://wa.me/{{ site_settings.whatsapp_number }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="WhatsApp"
+                  class="social-whatsapp"
+                >
+                  <i class="fa-brands fa-whatsapp"></i>
+                </a>
+
+              {% endif %}
+
+            </div>
+
+          </div>
+
+          <div class="travel-platform-panel">
+
+            <p class="eyebrow">
+              APPROVED SUPPLIER
+            </p>
+
+            <h3>
+              Travel Platform Partnerships
+            </h3>
+
+            <div class="travel-platform-grid">
+
+              {% if site_settings.tripadvisor_url %}
+
+                <a
+                  href="{{ site_settings.tripadvisor_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="travel-platform-card tripadvisor-card"
+                >
+
+              {% else %}
+
+                <div
+                  class="travel-platform-card tripadvisor-card"
+                >
+
+              {% endif %}
+
+                  <span class="tripadvisor-mark">
+                    <i></i>
+                    <i></i>
+                    <b></b>
+                  </span>
+
+                  <div>
+                    <strong>tripadvisor</strong>
+                    <small>Approved Supplier</small>
+                  </div>
+
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+              {% if site_settings.tripadvisor_url %}
+                </a>
+              {% else %}
+                </div>
+              {% endif %}
+
+              {% if site_settings.getyourguide_url %}
+
+                <a
+                  href="{{ site_settings.getyourguide_url }}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="travel-platform-card getyourguide-card"
+                >
+
+              {% else %}
+
+                <div
+                  class="travel-platform-card getyourguide-card"
+                >
+
+              {% endif %}
+
+                  <span class="getyourguide-mark">
+                    <i class="fa-solid fa-location-arrow"></i>
+                  </span>
+
+                  <div>
+                    <strong>GetYourGuide</strong>
+                    <small>Approved Supplier</small>
+                  </div>
+
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i>
+
+              {% if site_settings.getyourguide_url %}
+                </a>
+              {% else %}
+                </div>
+              {% endif %}
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="homepage-contact-form-card">
+
+          <div class="homepage-form-heading">
+
+            <span>
+              <i class="fa-solid fa-route"></i>
+            </span>
+
+            <div>
+              <p class="eyebrow">
+                CUSTOM TOUR REQUEST
+              </p>
+
+              <h3>Tell us about your trip</h3>
+            </div>
+
+          </div>
+
+          <form
+            action="{{ url_for('public.quote') }}"
+            method="POST"
+            class="homepage-contact-form"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="homepage-form-grid">
+
+              <label>
+
+                <span>Full Name</span>
+
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="Your full name"
+                  required
+                >
+
+              </label>
+
+              <label>
+
+                <span>Phone / WhatsApp</span>
+
+                <input
+                  type="tel"
+                  name="phone"
+                  placeholder="+92..."
+                  required
+                >
+
+              </label>
+
+              <label>
+
+                <span>Destination</span>
+
+                <input
+                  type="text"
+                  name="destination"
+                  placeholder="Hunza, Skardu, Kashmir..."
+                  required
+                >
+
+              </label>
+
+              <label>
+
+                <span>Travelers</span>
+
+                <input
+                  type="number"
+                  name="travelers"
+                  min="1"
+                  max="100"
+                  value="2"
+                  required
+                >
+
+              </label>
+
+              <label class="full">
+
+                <span>Trip Requirements</span>
+
+                <textarea
+                  name="message"
+                  rows="5"
+                  placeholder="Travel dates, departure city, preferred tour type and any special requirements..."
+                  required
+                ></textarea>
+
+              </label>
+
+            </div>
+
+            <button
+              type="submit"
+              class="homepage-contact-submit"
+            >
+              Request a Custom Quote
+
+              <i class="fa-solid fa-arrow-right"></i>
+            </button>
+
+            <p class="homepage-form-note">
+              <i class="fa-solid fa-shield-halved"></i>
+              Your details are only used to prepare your tour quotation.
+            </p>
+
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+{% include "public/_site_footer.html" %}
+
+<div class="toast" id="toast"></div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/homepage-destinations.js') }}"></script>
+<script src="{{ url_for('static', filename='js/homepage-tours-carousel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/homepage-trekking-carousel.js') }}"></script>
+<script src="{{ url_for('static', filename='js/homepage-live-search.js') }}"></script>
+  <script
+    src="{{ url_for('static', filename='js/security-csrf.js') }}"
+  ></script>
+
+</body>
+</html>

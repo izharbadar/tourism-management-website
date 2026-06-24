@@ -1,0 +1,687 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Reports & Analytics
+{% endblock %}
+
+{% block page_title %}
+Reports & Analytics
+{% endblock %}
+
+{% block page_subtitle %}
+Track bookings, revenue, customers, inquiries and tour performance
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-reports.css') }}"
+>
+
+{% endblock %}
+
+{% block top_actions %}
+
+<a
+  href="{{ url_for('admin.export_report_pdf') }}?{{ filter_query }}"
+  class="primary-button report-download-button"
+>
+  Download PDF
+</a>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="report-filter-card">
+
+  <form
+    method="GET"
+    action="{{ url_for('admin.reports') }}"
+    class="report-filter-form"
+    id="reportFilterForm"
+  >
+
+    <div class="report-preset-group">
+
+      {% set presets = [
+        ('today', 'Today'),
+        ('7d', 'Last 7 Days'),
+        ('30d', 'Last 30 Days'),
+        ('month', 'This Month'),
+        ('year', 'This Year'),
+        ('custom', 'Custom')
+      ] %}
+
+      {% for value, label in presets %}
+
+        <label
+          class="report-preset-option {% if report_range.preset == value %}active{% endif %}"
+        >
+
+          <input
+            type="radio"
+            name="range"
+            value="{{ value }}"
+            {% if report_range.preset == value %}checked{% endif %}
+          >
+
+          <span>{{ label }}</span>
+
+        </label>
+
+      {% endfor %}
+
+    </div>
+
+    <div
+      class="report-custom-dates {% if report_range.preset == 'custom' %}show{% endif %}"
+      id="reportCustomDates"
+    >
+
+      <label>
+        <span>From</span>
+
+        <input
+          type="date"
+          name="start_date"
+          value="{{ report_range.start_date.isoformat() }}"
+          max="{{ report_range.end_date.isoformat() }}"
+        >
+      </label>
+
+      <label>
+        <span>To</span>
+
+        <input
+          type="date"
+          name="end_date"
+          value="{{ report_range.end_date.isoformat() }}"
+        >
+      </label>
+
+      <button
+        type="submit"
+        class="primary-button"
+      >
+        Apply Filter
+      </button>
+
+    </div>
+
+  </form>
+
+  <div class="report-active-range">
+
+    <span>Reporting period</span>
+
+    <strong>
+      {{ report_range.label }}
+    </strong>
+
+  </div>
+
+</section>
+
+<section class="report-kpi-grid">
+
+  <article class="report-kpi-card">
+
+    <span class="report-kpi-icon">▣</span>
+
+    <div>
+      <p>Total Bookings</p>
+
+      <strong>
+        {{ report_data.summary.total_bookings }}
+      </strong>
+
+      <small>
+        {{ report_data.summary.confirmed_bookings }}
+        confirmed ·
+        {{ report_data.summary.pending_bookings }}
+        pending
+      </small>
+    </div>
+
+  </article>
+
+  <article class="report-kpi-card revenue">
+
+    <span class="report-kpi-icon">₨</span>
+
+    <div>
+      <p>Paid Revenue</p>
+
+      <strong>
+        PKR
+        {{ "{:,.0f}".format(report_data.summary.paid_revenue) }}
+      </strong>
+
+      <small>
+        PKR
+        {{ "{:,.0f}".format(report_data.summary.pending_payments) }}
+        pending
+      </small>
+    </div>
+
+  </article>
+
+  <article class="report-kpi-card">
+
+    <span class="report-kpi-icon">◎</span>
+
+    <div>
+      <p>New Customers</p>
+
+      <strong>
+        {{ report_data.summary.new_customers }}
+      </strong>
+
+      <small>
+        {{ report_data.summary.travelers }}
+        travelers booked
+      </small>
+    </div>
+
+  </article>
+
+  <article class="report-kpi-card">
+
+    <span class="report-kpi-icon">✉</span>
+
+    <div>
+      <p>Inquiries</p>
+
+      <strong>
+        {{ report_data.summary.total_inquiries }}
+      </strong>
+
+      <small>
+        {{ report_data.summary.inquiry_conversion_rate }}%
+        conversion
+      </small>
+    </div>
+
+  </article>
+
+  <article class="report-kpi-card">
+
+    <span class="report-kpi-icon">♥</span>
+
+    <div>
+      <p>Wishlist Saves</p>
+
+      <strong>
+        {{ report_data.summary.wishlist_activity }}
+      </strong>
+
+      <small>
+        {{ report_data.summary.wishlist_users }}
+        customers ·
+        {{ report_data.summary.wishlist_tours }}
+        tours
+      </small>
+    </div>
+
+  </article>
+
+  <article class="report-kpi-card">
+
+    <span class="report-kpi-icon">↗</span>
+
+    <div>
+      <p>Average Booking</p>
+
+      <strong>
+        PKR
+        {{ "{:,.0f}".format(report_data.summary.average_booking_value) }}
+      </strong>
+
+      <small>
+        PKR
+        {{ "{:,.0f}".format(report_data.summary.booking_value) }}
+        booking value
+      </small>
+    </div>
+
+  </article>
+
+</section>
+
+<section class="report-main-grid">
+
+  <article class="report-panel report-chart-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Performance</span>
+
+        <h2>Bookings & Revenue Trend</h2>
+      </div>
+
+      <div class="report-chart-legend">
+
+        <span>
+          <i class="bookings-dot"></i>
+          Bookings
+        </span>
+
+        <span>
+          <i class="revenue-dot"></i>
+          Revenue
+        </span>
+
+      </div>
+
+    </div>
+
+    <div class="report-chart-wrap">
+
+      <canvas
+        id="performanceChart"
+        aria-label="Bookings and revenue chart"
+      ></canvas>
+
+      <div
+        class="report-chart-empty"
+        id="performanceChartEmpty"
+        hidden
+      >
+        No booking activity in this period.
+      </div>
+
+    </div>
+
+  </article>
+
+  <article class="report-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Booking Mix</span>
+
+        <h2>Status Breakdown</h2>
+      </div>
+
+    </div>
+
+    <div class="report-progress-list">
+
+      {% set total_statuses = report_data.summary.total_bookings or 1 %}
+
+      {% for item in report_data.statuses %}
+
+        <div class="report-progress-item">
+
+          <div>
+            <strong>
+              {{ item.label | replace('_', ' ') | title }}
+            </strong>
+
+            <span>{{ item.total }}</span>
+          </div>
+
+          <div class="report-progress-track">
+
+            <span
+              style="width: {{ ((item.total / total_statuses) * 100) | round(1) }}%"
+              class="status-{{ item.label }}"
+            ></span>
+
+          </div>
+
+        </div>
+
+      {% else %}
+
+        <div class="report-empty-state">
+          No booking status data.
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  </article>
+
+</section>
+
+<section class="report-secondary-grid">
+
+  <article class="report-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Tour Performance</span>
+
+        <h2>Most Booked Tours</h2>
+      </div>
+
+      <a href="{{ url_for('admin.tours') }}">
+        Manage Tours
+      </a>
+
+    </div>
+
+    <div class="report-table-wrap">
+
+      <table class="report-table">
+
+        <thead>
+          <tr>
+            <th>Tour</th>
+            <th>Bookings</th>
+            <th>Travelers</th>
+            <th>Paid Revenue</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for tour in report_data.top_tours %}
+
+            <tr>
+
+              <td>
+                <strong>{{ tour.title }}</strong>
+                <small>{{ tour.destination }}</small>
+              </td>
+
+              <td>{{ tour.booking_count }}</td>
+
+              <td>{{ tour.travelers }}</td>
+
+              <td>
+                PKR
+                {{ "{:,.0f}".format(tour.paid_revenue) }}
+              </td>
+
+            </tr>
+
+          {% else %}
+
+            <tr>
+              <td colspan="4" class="report-table-empty">
+                No tour booking data for this period.
+              </td>
+            </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </article>
+
+  <article class="report-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Destination Demand</span>
+
+        <h2>Top Destinations</h2>
+      </div>
+
+    </div>
+
+    <div class="destination-list">
+
+      {% set maximum_destination = (
+        report_data.top_destinations[0].booking_count
+        if report_data.top_destinations
+        else 1
+      ) %}
+
+      {% for item in report_data.top_destinations %}
+
+        <div class="destination-item">
+
+          <div>
+            <strong>{{ item.destination }}</strong>
+
+            <span>
+              {{ item.travelers }} travelers
+            </span>
+          </div>
+
+          <div class="destination-bar">
+
+            <span
+              style="width: {{ ((item.booking_count / maximum_destination) * 100) | round(1) }}%"
+            ></span>
+
+          </div>
+
+          <b>{{ item.booking_count }}</b>
+
+        </div>
+
+      {% else %}
+
+        <div class="report-empty-state">
+          No destination data.
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  </article>
+
+</section>
+
+<section class="report-secondary-grid">
+
+  <article class="report-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Payments</span>
+
+        <h2>Payment Method Breakdown</h2>
+      </div>
+
+    </div>
+
+    <div class="payment-method-list">
+
+      {% for item in report_data.payments %}
+
+        <div class="payment-method-item">
+
+          <div>
+            <strong>
+              {{ item.label | replace('_', ' ') | title }}
+            </strong>
+
+            <span>
+              {{ item.total }} bookings
+            </span>
+          </div>
+
+          <b>
+            PKR
+            {{ "{:,.0f}".format(item.amount) }}
+          </b>
+
+        </div>
+
+      {% else %}
+
+        <div class="report-empty-state">
+          No payment data.
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  </article>
+
+  <article class="report-panel">
+
+    <div class="report-panel-heading">
+
+      <div>
+        <span>Operations</span>
+
+        <h2>Upcoming Bookings</h2>
+      </div>
+
+      <a href="{{ url_for('admin.bookings') }}">
+        View All
+      </a>
+
+    </div>
+
+    <div class="upcoming-booking-list">
+
+      {% for booking in report_data.upcoming_bookings %}
+
+        <a
+          href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}"
+          class="upcoming-booking-item"
+        >
+
+          <span class="upcoming-date">
+            <strong>
+              {{ booking.travel_date.strftime('%d') }}
+            </strong>
+
+            <small>
+              {{ booking.travel_date.strftime('%b') }}
+            </small>
+          </span>
+
+          <span>
+            <strong>{{ booking.tour_title }}</strong>
+
+            <small>
+              {{ booking.customer_name }} ·
+              {{ booking.total_travelers }}
+              travelers
+            </small>
+          </span>
+
+          <b>
+            {{ booking.booking_status | title }}
+          </b>
+
+        </a>
+
+      {% else %}
+
+        <div class="report-empty-state">
+          No upcoming bookings.
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  </article>
+
+</section>
+
+<section class="report-panel report-export-panel">
+
+  <div class="report-panel-heading">
+
+    <div>
+      <span>Data Exports</span>
+
+      <h2>Download Report Data</h2>
+
+      <p>
+        Exports use the active reporting period:
+        {{ report_range.label }}.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="report-export-grid">
+
+    <a
+      href="{{ url_for('admin.export_bookings_csv') }}?{{ filter_query }}"
+      class="report-export-card"
+    >
+      <span>CSV</span>
+
+      <div>
+        <strong>Bookings Export</strong>
+        <small>Booking, customer and payment details</small>
+      </div>
+
+      <b>Download</b>
+    </a>
+
+    <a
+      href="{{ url_for('admin.export_customers_csv') }}?{{ filter_query }}"
+      class="report-export-card"
+    >
+      <span>CSV</span>
+
+      <div>
+        <strong>Customers Export</strong>
+        <small>New customers and booking totals</small>
+      </div>
+
+      <b>Download</b>
+    </a>
+
+    <a
+      href="{{ url_for('admin.export_inquiries_csv') }}?{{ filter_query }}"
+      class="report-export-card"
+    >
+      <span>CSV</span>
+
+      <div>
+        <strong>Inquiries Export</strong>
+        <small>Homepage and tour inquiry records</small>
+      </div>
+
+      <b>Download</b>
+    </a>
+
+    <a
+      href="{{ url_for('admin.export_report_pdf') }}?{{ filter_query }}"
+      class="report-export-card pdf"
+    >
+      <span>PDF</span>
+
+      <div>
+        <strong>Summary Report</strong>
+        <small>Professional management overview</small>
+      </div>
+
+      <b>Download</b>
+    </a>
+
+  </div>
+
+</section>
+
+<script id="reportChartData" type="application/json">
+  {{ report_data.series | tojson }}
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/admin-reports.js') }}"
+></script>
+
+{% endblock %}

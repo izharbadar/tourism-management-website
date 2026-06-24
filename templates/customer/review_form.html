@@ -1,0 +1,93 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+  {{ 'Edit Review' if review else 'Write Review' }} | {{ booking.tour.title }}
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/customer-reviews.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="review-form-page">
+  <div class="review-form-container">
+
+    <a href="{{ url_for('customer.reviews') }}" class="review-back-link">← Back to My Reviews</a>
+
+    <div class="customer-review-form-card">
+
+      <div class="review-trip-summary">
+        {% if booking.tour.main_image %}
+          <img src="{{ booking.tour.main_image }}" alt="{{ booking.tour.title }}">
+        {% else %}
+          <span>⛰</span>
+        {% endif %}
+
+        <div>
+          <small>{{ booking.booking_number }}</small>
+          <h1>{{ 'Edit Your Review' if review else 'How Was Your Trip?' }}</h1>
+          <p>{{ booking.tour.title }} · {{ booking.tour.destination }}</p>
+        </div>
+      </div>
+
+      <form method="POST" class="customer-review-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <fieldset class="customer-star-field">
+          <legend>Your Rating *</legend>
+
+          {% set selected_rating = request.form.get('rating', review.rating if review else 5) | int %}
+
+          <div class="star-rating-input">
+            {% for number in range(5, 0, -1) %}
+              <input
+                type="radio"
+                id="rating{{ number }}"
+                name="rating"
+                value="{{ number }}"
+                {% if selected_rating == number %}checked{% endif %}
+                required
+              >
+              <label for="rating{{ number }}" title="{{ number }} stars">★</label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <label class="customer-review-field">
+          <span>Review Title</span>
+          <input
+            type="text"
+            name="title"
+            maxlength="180"
+            value="{{ request.form.get('title', review.title if review and review.title else '') }}"
+            placeholder="An unforgettable experience"
+          >
+        </label>
+
+        <label class="customer-review-field">
+          <span>Your Review *</span>
+          <textarea
+            name="review_text"
+            rows="8"
+            maxlength="5000"
+            placeholder="Tell future travelers what you enjoyed, how the guide helped and what made the trip memorable..."
+            required
+          >{{ request.form.get('review_text', review.review_text if review else '') }}</textarea>
+          <small>Minimum 20 characters. Your review will appear after admin approval.</small>
+        </label>
+
+        <button type="submit" class="customer-review-submit">
+          {{ 'Update Review' if review else 'Submit Review' }}
+        </button>
+
+      </form>
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

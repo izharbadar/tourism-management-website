@@ -1,0 +1,113 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+Inquiry Received | Capture Pakistan
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/inquiry-system.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="inquiry-success-page">
+
+  <div class="page-container">
+
+    <div class="inquiry-success-card">
+
+      <div class="inquiry-success-icon">
+        ✓
+      </div>
+
+      <span class="inquiry-success-eyebrow">
+        Inquiry Received
+      </span>
+
+      <h1>Your Inquiry Has Been Submitted!</h1>
+
+      <p>
+        Thank you, {{ inquiry.customer_name }}.
+        Our travel team has received your inquiry
+        and will contact you through WhatsApp or email.
+      </p>
+
+      <div class="inquiry-reference">
+
+        <small>Inquiry Reference</small>
+
+        <strong>
+          {{ inquiry.inquiry_number }}
+        </strong>
+
+      </div>
+
+      <div class="inquiry-success-details">
+
+        <div>
+          <small>Tour</small>
+          <strong>{{ inquiry.tour.title }}</strong>
+        </div>
+
+        <div>
+          <small>Inquiry Type</small>
+
+          <strong>
+            {{ inquiry.inquiry_type.replace('_', ' ')|title }}
+          </strong>
+        </div>
+
+        <div>
+          <small>Travelers</small>
+          <strong>{{ inquiry.travelers }}</strong>
+        </div>
+
+        <div>
+          <small>Current Status</small>
+          <strong>New Inquiry</strong>
+        </div>
+
+      </div>
+
+      <div class="inquiry-response-note">
+
+        <span>i</span>
+
+        <p>
+          Keep your inquiry reference safe.
+          Our team will review your requirements
+          and share the next steps with you.
+        </p>
+
+      </div>
+
+      <div class="inquiry-success-actions">
+
+        <a
+          href="{{ url_for('public.tour_detail', slug=inquiry.tour.slug) }}"
+          class="inquiry-primary-button"
+        >
+          Return to Tour
+        </a>
+
+        <a
+          href="{{ url_for('public.public_tours') }}"
+          class="inquiry-secondary-button"
+        >
+          Explore More Tours
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}

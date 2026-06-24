@@ -1,0 +1,526 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Site Settings{% endblock %}
+{% block page_title %}Site Settings{% endblock %}
+{% block page_subtitle %}
+Manage website contact details, branding, invoices and maintenance mode
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-settings.css') }}"
+>
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('public.home') }}"
+  class="secondary-button"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  View Website ↗
+</a>
+{% endblock %}
+
+{% block content %}
+
+<form
+  method="POST"
+  action="{{ url_for('admin.site_settings') }}"
+  enctype="multipart/form-data"
+  class="settings-form"
+>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+  <section class="settings-intro">
+    <div>
+      <span>Central Configuration</span>
+      <h2>Manage the website without editing code</h2>
+      <p>
+        Contact information, company branding, invoice details
+        and booking messages can be updated from this page.
+      </p>
+    </div>
+
+    <button
+      type="submit"
+      class="primary-button settings-save-top"
+    >
+      Save All Settings
+    </button>
+  </section>
+
+  <div class="settings-layout">
+
+    <main class="settings-main">
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>01</span>
+          <div>
+            <h2>General Information</h2>
+            <p>Website name, tagline and footer content.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label class="settings-field">
+            <span>Website Name</span>
+            <input
+              type="text"
+              name="site_name"
+              value="{{ settings.site_name }}"
+              maxlength="120"
+              required
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Website Tagline</span>
+            <input
+              type="text"
+              name="site_tagline"
+              value="{{ settings.site_tagline }}"
+              maxlength="180"
+            >
+          </label>
+
+          <label class="settings-field full">
+            <span>Footer Tagline</span>
+            <input
+              type="text"
+              name="footer_tagline"
+              value="{{ settings.footer_tagline }}"
+              maxlength="180"
+            >
+          </label>
+
+          <label class="settings-field full">
+            <span>Footer Description</span>
+            <textarea
+              name="footer_description"
+              rows="4"
+              maxlength="700"
+            >{{ settings.footer_description }}</textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>02</span>
+          <div>
+            <h2>Contact Information</h2>
+            <p>Details shown to customers across the website.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label class="settings-field">
+            <span>Main Email</span>
+            <input
+              type="email"
+              name="primary_email"
+              value="{{ settings.primary_email }}"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Booking Email</span>
+            <input
+              type="email"
+              name="booking_email"
+              value="{{ settings.booking_email }}"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Support Email</span>
+            <input
+              type="email"
+              name="support_email"
+              value="{{ settings.support_email }}"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Displayed Phone</span>
+            <input
+              type="text"
+              name="phone_display"
+              value="{{ settings.phone_display }}"
+              placeholder="+92 327 1125667"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Telephone Link</span>
+            <input
+              type="text"
+              name="phone_link"
+              value="{{ settings.phone_link }}"
+              placeholder="+923271125667"
+            >
+            <small>Use international format without spaces.</small>
+          </label>
+
+          <label class="settings-field">
+            <span>WhatsApp Number</span>
+            <input
+              type="text"
+              name="whatsapp_number"
+              value="{{ settings.whatsapp_number }}"
+              placeholder="923271125667"
+            >
+            <small>Numbers only with country code.</small>
+          </label>
+
+          <label class="settings-field full">
+            <span>Office Address</span>
+            <textarea
+              name="office_address"
+              rows="3"
+              maxlength="500"
+            >{{ settings.office_address }}</textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>03</span>
+          <div>
+            <h2>Social Media</h2>
+            <p>Leave a field empty when the profile is unavailable.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label class="settings-field">
+            <span>Facebook URL</span>
+            <input
+              type="url"
+              name="facebook_url"
+              value="{{ settings.facebook_url }}"
+              placeholder="https://facebook.com/..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Instagram URL</span>
+            <input
+              type="url"
+              name="instagram_url"
+              value="{{ settings.instagram_url }}"
+              placeholder="https://instagram.com/..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>YouTube URL</span>
+            <input
+              type="url"
+              name="youtube_url"
+              value="{{ settings.youtube_url }}"
+              placeholder="https://youtube.com/..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>TikTok URL</span>
+            <input
+              type="url"
+              name="tiktok_url"
+              value="{{ settings.tiktok_url }}"
+              placeholder="https://tiktok.com/@..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>LinkedIn URL</span>
+            <input
+              type="url"
+              name="linkedin_url"
+              value="{{ settings.linkedin_url }}"
+              placeholder="https://linkedin.com/company/..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Google Profile URL</span>
+            <input
+              type="url"
+              name="google_profile_url"
+              value="{{ settings.google_profile_url }}"
+              placeholder="https://share.google/..."
+            >
+          </label>
+
+          <label class="settings-field full">
+            <span>Google Reviews Embed URL</span>
+            <input
+              type="url"
+              name="google_reviews_embed_url"
+              value="{{ settings.google_reviews_embed_url }}"
+              placeholder="https://www.google.com/maps?...&output=embed"
+            >
+            <small>Use a Google Maps embed URL or a trusted review-widget iframe URL.</small>
+          </label>
+
+          <label class="settings-field">
+            <span>Tripadvisor Profile URL</span>
+            <input
+              type="url"
+              name="tripadvisor_url"
+              value="{{ settings.tripadvisor_url }}"
+              placeholder="https://tripadvisor.com/..."
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>GetYourGuide Profile URL</span>
+            <input
+              type="url"
+              name="getyourguide_url"
+              value="{{ settings.getyourguide_url }}"
+              placeholder="https://getyourguide.com/..."
+            >
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>04</span>
+          <div>
+            <h2>Booking Communication</h2>
+            <p>Default customer-facing booking messages.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label class="settings-field full">
+            <span>Email Sender Name</span>
+            <input
+              type="text"
+              name="email_sender_name"
+              value="{{ settings.email_sender_name }}"
+              maxlength="120"
+            >
+          </label>
+
+          <label class="settings-field full">
+            <span>Default Cancellation Policy</span>
+            <textarea
+              name="default_cancellation_policy"
+              rows="4"
+              maxlength="1200"
+            >{{ settings.default_cancellation_policy }}</textarea>
+          </label>
+
+          <label class="settings-field full">
+            <span>Booking Confirmation Message</span>
+            <textarea
+              name="booking_confirmation_message"
+              rows="4"
+              maxlength="1200"
+            >{{ settings.booking_confirmation_message }}</textarea>
+          </label>
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>05</span>
+          <div>
+            <h2>Invoice Details</h2>
+            <p>Company details used on generated booking invoices.</p>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <label class="settings-field">
+            <span>Company Name</span>
+            <input
+              type="text"
+              name="invoice_company_name"
+              value="{{ settings.invoice_company_name }}"
+              maxlength="160"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Company Email</span>
+            <input
+              type="email"
+              name="invoice_company_email"
+              value="{{ settings.invoice_company_email }}"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Company Phone</span>
+            <input
+              type="text"
+              name="invoice_company_phone"
+              value="{{ settings.invoice_company_phone }}"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Currency Code</span>
+            <input
+              type="text"
+              name="currency_code"
+              value="{{ settings.currency_code }}"
+              maxlength="10"
+              placeholder="PKR"
+            >
+          </label>
+
+          <label class="settings-field">
+            <span>Currency Symbol / Label</span>
+            <input
+              type="text"
+              name="currency_symbol"
+              value="{{ settings.currency_symbol }}"
+              maxlength="10"
+              placeholder="PKR"
+            >
+          </label>
+
+          <label class="settings-field full">
+            <span>Company Address</span>
+            <textarea
+              name="invoice_company_address"
+              rows="3"
+              maxlength="700"
+            >{{ settings.invoice_company_address }}</textarea>
+          </label>
+        </div>
+      </section>
+
+    </main>
+
+    <aside class="settings-side">
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>06</span>
+          <div>
+            <h2>Branding</h2>
+            <p>Upload the website logo and browser icon.</p>
+          </div>
+        </div>
+
+        <div class="settings-upload-block">
+          <strong>Website Logo</strong>
+
+          <div class="settings-preview">
+            {% if settings.logo_path %}
+              <img
+                src="{{ url_for('static', filename=settings.logo_path) }}"
+                alt="Current website logo"
+              >
+            {% else %}
+              <span>⛰</span>
+            {% endif %}
+          </div>
+
+          <input
+            type="file"
+            name="site_logo"
+            accept=".png,.jpg,.jpeg,.webp"
+          >
+
+          <small>Recommended transparent PNG or WEBP.</small>
+
+          {% if settings.logo_path %}
+            <label class="settings-checkbox danger">
+              <input type="checkbox" name="remove_logo">
+              <span>Remove current logo</span>
+            </label>
+          {% endif %}
+        </div>
+
+        <div class="settings-upload-block">
+          <strong>Favicon</strong>
+
+          <div class="settings-preview favicon">
+            {% if settings.favicon_path %}
+              <img
+                src="{{ url_for('static', filename=settings.favicon_path) }}"
+                alt="Current favicon"
+              >
+            {% else %}
+              <span>CP</span>
+            {% endif %}
+          </div>
+
+          <input
+            type="file"
+            name="site_favicon"
+            accept=".png,.jpg,.jpeg,.webp,.ico"
+          >
+
+          <small>Recommended square image, at least 256 × 256 px.</small>
+
+          {% if settings.favicon_path %}
+            <label class="settings-checkbox danger">
+              <input type="checkbox" name="remove_favicon">
+              <span>Remove current favicon</span>
+            </label>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="settings-card">
+        <div class="settings-heading">
+          <span>07</span>
+          <div>
+            <h2>Maintenance Mode</h2>
+            <p>Temporarily hide public and customer pages.</p>
+          </div>
+        </div>
+
+        <label class="settings-switch">
+          <input
+            type="checkbox"
+            name="maintenance_mode"
+            {% if settings.maintenance_mode == 'true' %}checked{% endif %}
+          >
+          <span class="settings-switch-control"></span>
+          <strong>Enable maintenance mode</strong>
+        </label>
+
+        <label class="settings-field">
+          <span>Maintenance Message</span>
+          <textarea
+            name="maintenance_message"
+            rows="6"
+            maxlength="1000"
+          >{{ settings.maintenance_message }}</textarea>
+        </label>
+
+        <div class="settings-warning">
+          Admin pages and login remain available while maintenance
+          mode is enabled.
+        </div>
+      </section>
+
+      <button
+        type="submit"
+        class="primary-button settings-save-bottom"
+      >
+        Save All Settings
+      </button>
+
+    </aside>
+
+  </div>
+
+</form>
+
+{% endblock %}

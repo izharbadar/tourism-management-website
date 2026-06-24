@@ -1,0 +1,189 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Tour Inquiries{% endblock %}
+
+{% block page_title %}Tour Inquiries{% endblock %}
+
+{% block page_subtitle %}
+Manage private tour requests, quotations and customer questions
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/inquiry-system.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="page-card">
+
+  <form
+    method="GET"
+    class="inquiry-admin-filters"
+  >
+
+    <input
+      type="search"
+      name="search"
+      value="{{ search }}"
+      placeholder="Reference, customer, email, phone or tour"
+    >
+
+    <select name="status">
+      <option value="">All Statuses</option>
+
+      {% for status in [
+        'new',
+        'contacted',
+        'quotation_sent',
+        'converted',
+        'closed'
+      ] %}
+
+        <option
+          value="{{ status }}"
+          {% if selected_status == status %}selected{% endif %}
+        >
+          {{ status.replace('_', ' ')|title }}
+        </option>
+
+      {% endfor %}
+    </select>
+
+    <select name="type">
+      <option value="">All Inquiry Types</option>
+
+      {% for inquiry_type in [
+        'general',
+        'private_tour',
+        'customized_tour',
+        'group_tour',
+        'price_quotation'
+      ] %}
+
+        <option
+          value="{{ inquiry_type }}"
+          {% if selected_type == inquiry_type %}selected{% endif %}
+        >
+          {{ inquiry_type.replace('_', ' ')|title }}
+        </option>
+
+      {% endfor %}
+    </select>
+
+    <button
+      type="submit"
+      class="primary-button"
+    >
+      Filter
+    </button>
+
+  </form>
+
+  {% if inquiries %}
+
+    <div class="table-wrapper">
+
+      <table class="admin-table">
+
+        <thead>
+          <tr>
+            <th>Inquiry</th>
+            <th>Customer</th>
+            <th>Tour</th>
+            <th>Type</th>
+            <th>Preferred Date</th>
+            <th>Travelers</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for inquiry in inquiries %}
+
+            <tr>
+
+              <td>
+                <strong>
+                  {{ inquiry.inquiry_number }}
+                </strong>
+
+                <br>
+
+                <small>
+                  {{ inquiry.created_at.strftime('%d %b %Y') }}
+                </small>
+              </td>
+
+              <td>
+                {{ inquiry.customer_name }}
+
+                <br>
+
+                <small>
+                  {{ inquiry.customer_email }}
+                </small>
+              </td>
+
+              <td>
+                {{ inquiry.tour.title }}
+              </td>
+
+              <td>
+                {{ inquiry.inquiry_type.replace('_', ' ')|title }}
+              </td>
+
+              <td>
+                {% if inquiry.preferred_date %}
+                  {{ inquiry.preferred_date.strftime('%d %b %Y') }}
+                {% else %}
+                  Flexible
+                {% endif %}
+              </td>
+
+              <td>
+                {{ inquiry.travelers }}
+              </td>
+
+              <td>
+                <span class="inquiry-status inquiry-status-{{ inquiry.inquiry_status }}">
+                  {{ inquiry.inquiry_status.replace('_', ' ')|title }}
+                </span>
+              </td>
+
+              <td>
+                <a
+                  href="{{ url_for('admin.inquiry_detail', inquiry_id=inquiry.id) }}"
+                  class="secondary-button"
+                >
+                  Open
+                </a>
+              </td>
+
+            </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  {% else %}
+
+    <div class="empty-state">
+      No tour inquiries match the selected filters.
+    </div>
+
+  {% endif %}
+
+</section>
+
+{% endblock %}

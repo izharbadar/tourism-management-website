@@ -1,0 +1,115 @@
+{% extends "public/base.html" %}
+
+{% block title %}My Reviews | Capture Pakistan{% endblock %}
+{% block meta_description %}Manage your Capture Pakistan tour reviews.{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/customer-reviews.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="customer-review-page">
+  <div class="review-page-container">
+
+    <header class="customer-review-header">
+      <div>
+        <span>Customer Account</span>
+        <h1>My Reviews</h1>
+        <p>Share your experience after a completed Capture Pakistan trip.</p>
+      </div>
+
+      <a href="{{ url_for('customer.bookings') }}" class="review-outline-button">My Bookings</a>
+    </header>
+
+    {% if eligible_bookings %}
+      <section class="eligible-review-section">
+        <div class="customer-section-heading">
+          <div>
+            <span>Ready to review</span>
+            <h2>Completed Trips</h2>
+          </div>
+        </div>
+
+        <div class="eligible-review-grid">
+          {% for booking in eligible_bookings %}
+            <article class="eligible-review-card">
+              <div>
+                <small>{{ booking.booking_number }}</small>
+                <h3>{{ booking.tour.title }}</h3>
+                <p>{{ booking.travel_date.strftime('%d %B %Y') }} · {{ booking.tour.destination }}</p>
+              </div>
+
+              <a href="{{ url_for('customer.booking_review', booking_number=booking.booking_number) }}">
+                Write Review →
+              </a>
+            </article>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+
+    <section class="customer-review-list-section">
+      <div class="customer-section-heading">
+        <div>
+          <span>Your feedback</span>
+          <h2>Submitted Reviews</h2>
+        </div>
+        <strong>{{ reviews|length }}</strong>
+      </div>
+
+      {% if reviews %}
+        <div class="customer-review-list">
+          {% for review in reviews %}
+            <article class="customer-review-card">
+              <div class="customer-review-card-top">
+                <div>
+                  <span class="customer-review-tour">{{ review.tour.title }}</span>
+                  <div class="customer-stars">
+                    {% for number in range(1, 6) %}
+                      <span class="{% if number <= review.rating %}filled{% endif %}">★</span>
+                    {% endfor %}
+                  </div>
+                </div>
+
+                <span class="customer-review-status status-{{ review.status }}">
+                  {{ review.status }}
+                </span>
+              </div>
+
+              {% if review.title %}<h3>{{ review.title }}</h3>{% endif %}
+              <p>{{ review.review_text }}</p>
+
+              <footer>
+                <span>{{ review.display_date.strftime('%d %b %Y') if review.display_date else '' }}</span>
+                {% if review.booking %}
+                  <a href="{{ url_for('customer.booking_review', booking_number=review.booking.booking_number) }}">
+                    Edit Review
+                  </a>
+                {% endif %}
+              </footer>
+
+              {% if review.status == 'pending' %}
+                <div class="customer-review-message">Your review is waiting for admin approval.</div>
+              {% elif review.status == 'rejected' %}
+                <div class="customer-review-message rejected">Please edit and resubmit this review.</div>
+              {% endif %}
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="customer-review-empty">
+          <span>☆</span>
+          <h3>No reviews submitted yet</h3>
+          <p>Your completed tours will appear above when they are ready to review.</p>
+        </div>
+      {% endif %}
+    </section>
+
+  </div>
+</section>
+
+{% endblock %}

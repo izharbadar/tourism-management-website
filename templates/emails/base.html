@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f3;font-family:Arial,sans-serif;color:#10221d;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f1f5f3;padding:30px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:650px;background:#ffffff;border-radius:18px;overflow:hidden;box-shadow:0 12px 36px rgba(16,34,29,.08);">
+          <tr>
+            <td style="padding:24px 30px;background:#064f40;color:#ffffff;">
+              <div style="font-size:21px;font-weight:800;">{{ site_settings.site_name }}</div>
+              <div style="margin-top:4px;font-size:12px;color:#bce4d7;">Explore beyond the ordinary</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:30px;">
+              {% block content %}{% endblock %}
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 30px;border-top:1px solid #e5ece8;color:#75817d;font-size:11px;line-height:1.6;">
+              This email was sent automatically by {{ site_settings.site_name }}.<br>
+              Please reply to this email when you need assistance.
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

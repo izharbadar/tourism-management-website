@@ -1,0 +1,97 @@
+:root {
+  --security-green: #06493c;
+  --security-gold: #f5b735;
+  --security-text: #173129;
+  --security-muted: #68766f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+  color: var(--security-text);
+  background:
+    radial-gradient(circle at 90% 10%, rgba(245, 183, 53, 0.16), transparent 30%),
+    linear-gradient(135deg, #f8fbf9, #eef4f1);
+  font-family: Arial, sans-serif;
+}
+
+.security-error-card {
+  width: min(100%, 680px);
+  padding: 42px;
+  border: 1px solid #dce5e1;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 24px 65px rgba(0, 49, 37, 0.12);
+  text-align: center;
+}
+
+.security-error-code {
+  display: inline-grid;
+  place-items: center;
+  min-width: 82px;
+  min-height: 50px;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: var(--security-green);
+  background: var(--security-gold);
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.security-error-card h1 {
+  margin: 20px 0 10px;
+  color: var(--security-green);
+  font-size: clamp(30px, 6vw, 48px);
+}
+
+.security-error-card p {
+  max-width: 520px;
+  margin: 0 auto;
+  color: var(--security-muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.security-error-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
+
+.security-error-actions a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid var(--security-green);
+  border-radius: 10px;
+  color: var(--security-green);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.security-error-actions a.primary {
+  color: #ffffff;
+  background: var(--security-green);
+}
+
+@media (max-width: 520px) {
+  body {
+    padding: 16px;
+  }
+
+  .security-error-card {
+    padding: 30px 20px;
+  }
+}

@@ -1,0 +1,135 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Gallery Photo{% endblock %}
+{% block page_title %}Edit Gallery Photo{% endblock %}
+{% block page_subtitle %}Update the public information and visibility of this image{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-site-gallery.css') }}"
+>
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.site_gallery') }}"
+  class="secondary-button"
+>
+  ← Back to Gallery
+</a>
+{% endblock %}
+
+{% block content %}
+<section class="gallery-edit-layout">
+  <div class="gallery-edit-preview">
+    <img
+      src="{{ url_for('static', filename=image.image_path) }}"
+      alt="{{ image.alt_text or image.title or 'Gallery image' }}"
+    >
+
+    <div>
+      <span>Current image</span>
+      <strong>{{ image.original_name or 'Gallery photo' }}</strong>
+    </div>
+  </div>
+
+  <form
+    method="POST"
+    action="{{ url_for('admin.edit_site_gallery_image', image_id=image.id) }}"
+    class="gallery-edit-form"
+  >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="gallery-card-heading">
+      <span>✎</span>
+      <div>
+        <h2>Photo Details</h2>
+        <p>These details are visible on the public gallery page.</p>
+      </div>
+    </div>
+
+    <label class="gallery-field">
+      <span>Title</span>
+      <input
+        type="text"
+        name="title"
+        value="{{ image.title or '' }}"
+        maxlength="180"
+      >
+    </label>
+
+    <div class="gallery-form-grid">
+      <label class="gallery-field">
+        <span>Category</span>
+        <input
+          type="text"
+          name="category"
+          value="{{ image.category or '' }}"
+          maxlength="100"
+          placeholder="Mountains, Culture, Lakes..."
+        >
+      </label>
+
+      <label class="gallery-field">
+        <span>Location</span>
+        <input
+          type="text"
+          name="location"
+          value="{{ image.location or '' }}"
+          maxlength="160"
+        >
+      </label>
+    </div>
+
+    <label class="gallery-field">
+      <span>Caption</span>
+      <textarea
+        name="caption"
+        rows="5"
+        maxlength="700"
+      >{{ image.caption or '' }}</textarea>
+    </label>
+
+    <label class="gallery-field">
+      <span>SEO Alt Text</span>
+      <input
+        type="text"
+        name="alt_text"
+        value="{{ image.alt_text or '' }}"
+        maxlength="180"
+      >
+    </label>
+
+    <div class="gallery-edit-checks">
+      <label class="gallery-check">
+        <input
+          type="checkbox"
+          name="is_active"
+          {% if image.is_active %}checked{% endif %}
+        >
+        <span>
+          <strong>Publish this photo</strong>
+          <small>Visible on the public gallery.</small>
+        </span>
+      </label>
+
+      <label class="gallery-check">
+        <input
+          type="checkbox"
+          name="is_featured"
+          {% if image.is_featured %}checked{% endif %}
+        >
+        <span>
+          <strong>Featured photo</strong>
+          <small>Shown near the beginning.</small>
+        </span>
+      </label>
+    </div>
+
+    <button type="submit" class="gallery-upload-button">
+      Save Gallery Photo
+      <span>→</span>
+    </button>
+  </form>
+</section>
+{% endblock %}

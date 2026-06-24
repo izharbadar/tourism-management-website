@@ -1,0 +1,169 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+{{ booking.booking_number }} | My Booking
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-system.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/customer-reviews.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="booking-page">
+  <div class="page-container">
+
+    <div class="booking-page-header">
+      <div>
+        <span class="booking-reference">
+          {{ booking.booking_number }}
+        </span>
+
+        <h1>{{ booking.tour.title }}</h1>
+
+        <p>Booking created {{ booking.created_at.strftime('%d %b %Y') }}</p>
+      </div>
+
+      <div class="booking-header-actions">
+        <a
+          href="{{ url_for('customer.booking_invoice', booking_number=booking.booking_number) }}"
+          class="header-register"
+        >
+          Download Invoice PDF
+        </a>
+
+        <a
+          href="{{ url_for('customer.bookings') }}"
+          class="header-login"
+          style="color: var(--primary); border-color: var(--primary);"
+        >
+          Back to Bookings
+        </a>
+      </div>
+    </div>
+
+    <div class="booking-detail-grid">
+
+      <div class="booking-detail-card">
+        <h2>Booking Information</h2>
+
+        <div class="booking-info-grid">
+
+          <div class="booking-info-item">
+            <small>Travel date</small>
+            <strong>{{ booking.travel_date.strftime('%d %B %Y') }}</strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Pricing option</small>
+            <strong>{{ booking.pricing_type|title }}</strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Adults</small>
+            <strong>{{ booking.adults }}</strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Children</small>
+            <strong>{{ booking.children }}</strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Booking status</small>
+            <strong>
+              <span class="booking-status status-{{ booking.booking_status }}">
+                {{ booking.booking_status }}
+              </span>
+            </strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Payment status</small>
+            <strong>
+              <span class="payment-status payment-{{ booking.payment_status }}">
+                {{ booking.payment_status }}
+              </span>
+            </strong>
+          </div>
+
+          <div class="booking-info-item">
+            <small>Payment method</small>
+            <strong>
+              {% if booking.payment_method == "online_card" %}
+                Online Card Payment
+              {% else %}
+                Cash on Pickup
+              {% endif %}
+            </strong>
+          </div>
+
+        </div>
+
+        {% if booking.special_request %}
+          <h2 style="margin-top: 25px;">Special Request</h2>
+          <p>{{ booking.special_request }}</p>
+        {% endif %}
+      </div>
+
+      <aside class="booking-detail-card">
+        <h2>Payment Summary</h2>
+
+        <div class="booking-info-item">
+          <small>Package price</small>
+          <strong>
+            PKR {{ "{:,.0f}".format(booking.unit_price or 0) }}
+            × {{ booking.package_quantity }}
+          </strong>
+        </div>
+
+        {% if booking.children %}
+          <div class="booking-info-item" style="margin-top: 10px;">
+            <small>Children</small>
+            <strong>
+              PKR {{ "{:,.0f}".format(booking.child_unit_price or 0) }}
+              × {{ booking.children }}
+            </strong>
+          </div>
+        {% endif %}
+
+        <p style="margin-bottom: 5px;">Total amount</p>
+
+        <strong class="booking-summary-price">
+          PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}
+        </strong>
+
+        {% if booking.booking_status in ['pending', 'confirmed'] and booking.payment_status == 'unpaid' %}
+          <form
+            method="POST"
+            action="{{ url_for('customer.cancel_booking', booking_number=booking.booking_number) }}"
+            class="booking-cancel-form"
+            onsubmit="return confirm('Cancel this booking?');"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button
+              type="submit"
+              class="booking-cancel-button"
+            >
+              Cancel Booking
+            </button>
+          </form>
+        {% endif %}
+      {% include "customer/_booking_review_prompt.html" %}
+
+      </aside>
+
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

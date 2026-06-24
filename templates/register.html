@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Create Account | Capture Pakistan</title>
+
+  <link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+  >
+
+  <link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+  >
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(2, 43, 34, 0.93),
+          rgba(2, 43, 34, 0.68)
+        ),
+        url("https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=1800&q=85")
+        center / cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 35px 20px;
+    }
+
+    .register-card {
+      width: 100%;
+      max-width: 520px;
+      padding: 38px;
+      background: #ffffff;
+      border-radius: 26px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 27px;
+    }
+
+    .brand-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 16px;
+      background: #0f7b65;
+      color: #ffffff;
+      display: grid;
+      place-items: center;
+      font-size: 24px;
+    }
+
+    .brand strong {
+      display: block;
+      color: #073f34;
+      font-size: 17px;
+    }
+
+    .brand small {
+      color: #7a8782;
+      font-size: 11px;
+    }
+
+    h1 {
+      color: #10221d;
+      font-size: 29px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #667085;
+      font-size: 14px;
+      margin-bottom: 27px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 17px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: #34443f;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid #dfe8e3;
+      border-radius: 13px;
+      outline: none;
+      font-family: inherit;
+      font-size: 14px;
+      transition: 0.2s ease;
+    }
+
+    .field input:focus {
+      border-color: #0f7b65;
+      box-shadow: 0 0 0 4px rgba(15, 123, 101, 0.1);
+    }
+
+    .password-wrap {
+      position: relative;
+    }
+
+    .password-wrap input {
+      padding-right: 68px;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #0f7b65;
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .terms {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      color: #667085;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .terms input {
+      width: 16px;
+      height: 16px;
+      margin-top: 2px;
+      flex: 0 0 16px;
+    }
+
+    .register-button {
+      grid-column: 1 / -1;
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 13px;
+      background: #0f7b65;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .register-button:hover {
+      background: #075442;
+      transform: translateY(-1px);
+    }
+
+    .alert {
+      padding: 13px 15px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .alert-error {
+      color: #842029;
+      background: #f8d7da;
+      border: 1px solid #f5c2c7;
+    }
+
+    .alert-success {
+      color: #075442;
+      background: #dff5ec;
+      border: 1px solid #b7e5d5;
+    }
+
+    .login-text {
+      margin-top: 23px;
+      text-align: center;
+      color: #667085;
+      font-size: 13px;
+    }
+
+    .login-text a {
+      color: #0f7b65;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .back-link {
+      display: block;
+      margin-top: 16px;
+      color: #667085;
+      text-align: center;
+      text-decoration: none;
+      font-size: 12px;
+    }
+
+    @media (max-width: 600px) {
+      .register-card {
+        padding: 28px 22px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full,
+      .terms,
+      .register-button {
+        grid-column: auto;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="register-card">
+
+    <div class="brand">
+      <div class="brand-icon">⛰</div>
+
+      <div>
+        <strong>Capture Pakistan</strong>
+        <small>Explore beautiful Pakistan</small>
+      </div>
+    </div>
+
+    <h1>Create Your Account</h1>
+
+    <p class="subtitle">
+      Register to book tours and manage your travel plans.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form
+      method="POST"
+      action="{{ url_for('auth.register') }}"
+      class="form-grid"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field full">
+        <label for="name">
+          Full Name
+        </label>
+
+        <input
+          type="text"
+          id="name"
+          name="name"
+          value="{{ request.form.get('name', '') }}"
+          placeholder="Enter your full name"
+          autocomplete="name"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="email">
+          Email Address
+        </label>
+
+        <input
+          type="email"
+          id="email"
+          name="email"
+          value="{{ request.form.get('email', '') }}"
+          placeholder="your@email.com"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="phone">
+          Phone Number
+        </label>
+
+        <input
+          type="tel"
+          id="phone"
+          name="phone"
+          value="{{ request.form.get('phone', '') }}"
+          placeholder="+92 300 1234567"
+          autocomplete="tel"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="password">
+          Password
+        </label>
+
+        <div class="password-wrap">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Minimum 8 characters"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="password"
+          >
+            Show
+          </button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="confirm_password">
+          Confirm Password
+        </label>
+
+        <div class="password-wrap">
+          <input
+            type="password"
+            id="confirm_password"
+            name="confirm_password"
+            placeholder="Repeat password"
+            autocomplete="new-password"
+            minlength="8"
+            required
+          >
+
+          <button
+            type="button"
+            class="password-toggle"
+            data-password-toggle="confirm_password"
+          >
+            Show
+          </button>
+        </div>
+      </div>
+
+      <label class="terms">
+        <input
+          type="checkbox"
+          name="terms"
+          required
+        >
+
+        <span>
+          I agree to the terms and understand that my
+          account will be used to manage tour bookings.
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        class="register-button"
+      >
+        Create Customer Account
+      </button>
+
+    </form>
+
+    <p class="login-text">
+      Already have an account?
+
+      <a href="{{ url_for('auth.login') }}">
+        Login here
+      </a>
+    </p>
+
+    <a href="/" class="back-link">
+      ← Return to Capture Pakistan
+    </a>
+
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  <script
+    src="{{ url_for('static', filename='js/security-csrf.js') }}"
+  ></script>
+
+</body>
+</html>

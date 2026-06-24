@@ -1,0 +1,110 @@
+.destination-track {
+  scroll-behavior: smooth;
+  overscroll-behavior-inline: contain;
+}
+
+.destination-card {
+  color: #ffffff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.destination-card:focus-visible {
+  outline: 3px solid #f5b62e;
+  outline-offset: 4px;
+}
+
+.destination-card-arrow {
+  position: absolute;
+  right: 14px;
+  bottom: 15px;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 50%;
+  color: #ffffff;
+  background: rgba(0, 48, 38, 0.48);
+  opacity: 0;
+  transform: translateX(-7px);
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    background 0.22s ease;
+  backdrop-filter: blur(5px);
+}
+
+.destination-card:hover .destination-card-arrow,
+.destination-card:focus-visible .destination-card-arrow {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.destination-card:hover .destination-card-arrow {
+  color: #063e33;
+  background: #f5b62e;
+}
+
+.slider-buttons .circle-btn {
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.slider-buttons .circle-btn:hover:not(:disabled) {
+  color: #ffffff;
+  border-color: #063e33;
+  background: #063e33;
+}
+
+.slider-buttons .circle-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.destination-empty-state {
+  display: grid;
+  justify-items: center;
+  padding: 42px 20px;
+  border: 1px dashed #d5d0c5;
+  border-radius: 14px;
+  color: #6c7872;
+  background: #ffffff;
+  text-align: center;
+}
+
+.destination-empty-state > i {
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #063e33;
+  background: #f5b62e;
+  font-size: 18px;
+}
+
+.destination-empty-state h3 {
+  margin: 13px 0 5px;
+  color: #063e33;
+  font-size: 18px;
+}
+
+.destination-empty-state p {
+  max-width: 520px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+  .destination-card-arrow {
+    opacity: 1;
+    transform: none;
+  }
+}

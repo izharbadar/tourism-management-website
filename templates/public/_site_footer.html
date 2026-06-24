@@ -1,0 +1,65 @@
+{% set footer_places = footer_destinations if footer_destinations is defined else (destinations if destinations is defined else []) %}
+
+<footer class="site-footer" id="capturePakistanFooter">
+  <div class="container footer-grid">
+    <div class="footer-about">
+      <a href="{{ url_for('public.home') }}" aria-label="{{ site_settings.site_name }} homepage">
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="{{ site_settings.site_name }}">
+      </a>
+      <p>We bring you closer to the breathtaking beauty of Pakistan with unforgettable travel experiences.</p>
+      <div class="socials">
+        {% if site_settings.facebook_url %}<a href="{{ site_settings.facebook_url }}" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>{% endif %}
+        {% if site_settings.instagram_url %}<a href="{{ site_settings.instagram_url }}" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>{% endif %}
+        {% if site_settings.youtube_url %}<a href="{{ site_settings.youtube_url }}" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>{% endif %}
+        {% if site_settings.tiktok_url %}<a href="{{ site_settings.tiktok_url }}" target="_blank" rel="noopener noreferrer" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>{% endif %}
+        {% if site_settings.linkedin_url %}<a href="{{ site_settings.linkedin_url }}" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>{% endif %}
+        {% if site_settings.whatsapp_number %}<a href="https://wa.me/{{ site_settings.whatsapp_number }}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>{% endif %}
+      </div>
+    </div>
+
+    <div>
+      <h3>Quick Links</h3>
+      <a href="{{ url_for('public.home') }}">Home</a>
+      <a href="{{ url_for('public.destinations') }}">Destinations</a>
+      <a href="{{ url_for('public.public_tours') }}">Tours</a>
+      <a href="{{ url_for('public.trekking') }}">Trekking</a>
+      <a href="{{ url_for('public.gallery_page') }}">Gallery</a>
+      <a href="{{ url_for('public.about') }}">About Us</a>
+      <a href="{{ url_for('public.pakistan_visa') }}">Pakistan Visa</a>
+      <a href="{{ url_for('static', filename='documents/capture-pakistan-company-profile.pdf') }}" download="Capture-Pakistan-Company-Profile.pdf">Company Profile</a>
+      <a href="{{ url_for('public.contact') }}">Contact Us</a>
+    </div>
+
+    <div>
+      <h3>Popular Destinations</h3>
+      {% for destination in footer_places[:6] %}
+        <a href="{{ url_for('public.destination_detail', slug=destination.slug) }}">{{ destination.name }}</a>
+      {% else %}
+        <a href="{{ url_for('public.destinations') }}">Browse Destinations</a>
+      {% endfor %}
+    </div>
+
+    <div>
+      <h3>Contact Us</h3>
+      <p><i class="fa-solid fa-phone"></i><a href="tel:{{ site_settings.phone_link }}">{{ site_settings.phone_display }}</a></p>
+      <p><i class="fa-solid fa-envelope"></i><a href="mailto:{{ site_settings.primary_email }}">{{ site_settings.primary_email }}</a></p>
+      <p><i class="fa-solid fa-location-dot"></i>{{ site_settings.office_address }}</p>
+    </div>
+
+    <div>
+      <h3>Newsletter</h3>
+      <p>Subscribe to get updates and exclusive offers.</p>
+      <form class="newsletter" id="newsletterForm" onsubmit="return false;">
+        <input type="email" placeholder="Your Email" required>
+        <button class="btn btn-gold" type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <p>© {{ current_year }} {{ site_settings.site_name }}. All Rights Reserved.</p>
+      <p>Designed by <span>WOO RANKERS</span></p>
+    </div>
+  </div>
+</footer>

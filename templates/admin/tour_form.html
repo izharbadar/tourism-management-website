@@ -1,0 +1,717 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+  {{ "Add Tour" if form_mode == "add" else "Edit Tour" }}
+{% endblock %}
+
+{% block page_title %}
+  {{ "Add New Tour" if form_mode == "add" else "Edit Tour" }}
+{% endblock %}
+
+{% block page_subtitle %}
+Create and organize a complete Pakistan tour package
+{% endblock %}
+
+{% block top_actions %}
+
+{% if tour %}
+
+  <a
+    href="{{ url_for('admin.tour_gallery', tour_id=tour.id) }}"
+    class="secondary-button"
+  >
+    Manage Gallery
+  </a>
+
+{% endif %}
+
+<a href="{{ url_for('admin.tours') }}" class="secondary-button">
+  Back to Tours
+</a>
+{% endblock %}
+
+{% block content %}
+
+{% block extra_css %}
+
+<link
+  href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+  rel="stylesheet"
+>
+
+<style>
+  .rich-editor-wrap {
+    overflow: hidden;
+    border-radius: 13px;
+    background: #ffffff;
+  }
+
+  .rich-editor-wrap .ql-toolbar.ql-snow {
+    border: 1px solid var(--border);
+    border-radius: 13px 13px 0 0;
+    background: #f8fbf9;
+  }
+
+  .rich-editor-wrap .ql-container.ql-snow {
+    min-height: 300px;
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 13px 13px;
+    background: #ffffff;
+    font-family: "Poppins", sans-serif;
+    font-size: 14px;
+  }
+
+  .rich-editor-wrap .ql-editor {
+    min-height: 300px;
+    padding: 18px;
+    line-height: 1.8;
+  }
+
+  .rich-editor-wrap .ql-editor.ql-blank::before {
+    left: 18px;
+    color: #98a29e;
+    font-style: normal;
+  }
+
+  .field-help {
+    display: block;
+    margin-top: 7px;
+    color: var(--muted);
+    font-size: 10px;
+    line-height: 1.6;
+  }
+</style>
+
+{% endblock %}
+
+<section class="page-card">
+
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-field full">
+      <label>Tour Title *</label>
+      <input
+        type="text"
+        name="title"
+        value="{{ request.form.get('title', tour.title if tour else '') }}"
+        placeholder="K2 Base Camp Trek"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Category *</label>
+      <select name="category_id" required>
+        <option value="">Select category</option>
+
+        {% for category in categories %}
+          <option
+            value="{{ category.id }}"
+            {% if request.form.get('category_id', tour.category_id if tour else '')|string == category.id|string %}
+              selected
+            {% endif %}
+          >
+            {{ category.icon or "" }} {{ category.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Tour Type *</label>
+
+      {% set selected_type = request.form.get(
+        'tour_type',
+        tour.tour_type if tour else ''
+      ) %}
+
+      <select name="tour_type" required>
+        <option value="">Select type</option>
+        <option value="private" {% if selected_type == "private" %}selected{% endif %}>
+          Private Tour
+        </option>
+        <option value="group" {% if selected_type == "group" %}selected{% endif %}>
+          Group Tour
+        </option>
+        <option value="fixed_departure" {% if selected_type == "fixed_departure" %}selected{% endif %}>
+          Fixed Departure
+        </option>
+        <option value="custom" {% if selected_type == "custom" %}selected{% endif %}>
+          Custom Tour
+        </option>
+      </select>
+    </div>
+
+    <div class="form-field">
+      <label>Destination *</label>
+      <input
+        type="text"
+        name="destination"
+        value="{{ request.form.get('destination', tour.destination if tour else '') }}"
+        placeholder="Skardu, Gilgit-Baltistan"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Duration Days *</label>
+      <input
+        type="number"
+        name="duration_days"
+        value="{{ request.form.get('duration_days', tour.duration_days if tour else '') }}"
+        min="1"
+        placeholder="7"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Per Person Price *</label>
+      <input
+        type="number"
+        name="base_price"
+        value="{{ request.form.get('base_price', tour.base_price if tour else '') }}"
+        min="0"
+        step="0.01"
+        placeholder="45000"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Per Couple Price</label>
+      <input
+        type="number"
+        name="couple_price"
+        value="{{ request.form.get('couple_price', tour.couple_price if tour else 0) }}"
+        min="0"
+        step="0.01"
+        placeholder="85000"
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Child Price</label>
+      <input
+        type="number"
+        name="child_price"
+        value="{{ request.form.get('child_price', tour.child_price if tour else 0) }}"
+        min="0"
+        step="0.01"
+        placeholder="25000"
+      >
+    </div>
+
+    <div class="form-field full">
+      <label>Main Image URL</label>
+      <input
+        type="url"
+        name="main_image"
+        value="{{ request.form.get('main_image', tour.main_image if tour else '') }}"
+        placeholder="https://images.unsplash.com/..."
+      >
+    </div>
+
+    <div class="form-field full">
+      <label>Short Description</label>
+      <textarea
+        name="short_description"
+        placeholder="Write a short summary of this tour..."
+      >{{ request.form.get('short_description', tour.short_description if tour else '') }}</textarea>
+    </div>
+
+   <div class="form-field full">
+
+  <label for="descriptionEditor">
+    Full Description *
+  </label>
+
+  <textarea
+    id="descriptionInput"
+    name="description"
+    hidden
+  >{{ request.form.get('description', tour.description if tour else '') }}</textarea>
+
+  <div class="rich-editor-wrap">
+    <div id="descriptionEditor"></div>
+  </div>
+
+  <small class="field-help">
+    Use headings, paragraphs, bold text, bullet lists,
+    numbered lists, quotes and links to organize the tour details.
+  </small>
+
+</div>
+
+    <div class="form-field full">
+      <div class="repeater-heading">
+        <div>
+          <h3>Tour Itinerary</h3>
+          <p>Add day-by-day tour details.</p>
+        </div>
+
+        <button
+          type="button"
+          class="secondary-button"
+          data-add-row="itinerary"
+        >
+          + Add Day
+        </button>
+      </div>
+
+      <div class="repeater-list" id="itineraryRows">
+
+
+        {% if tour and tour.itineraries %}
+          {% for item in tour.itineraries %}
+            <div class="repeater-item">
+              <div class="repeater-item-header">
+                <strong data-day-heading>Day {{ item.day_number }}</strong>
+
+                <button
+                  type="button"
+                  class="remove-row-button"
+                  data-remove-row
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Day Number</label>
+                  <input
+                    type="number"
+                    name="itinerary_day_number[]"
+                    value="{{ item.day_number }}"
+                    min="0"
+                  >
+                </div>
+
+                <div class="form-field">
+                  <label>Day Title</label>
+                  <input
+                    type="text"
+                    name="itinerary_title[]"
+                    value="{{ item.title }}"
+                    placeholder="Arrival in Skardu"
+                  >
+                </div>
+
+                <div class="form-field full">
+                  <label>Day Description</label>
+                  <textarea
+                    name="itinerary_description[]"
+                    placeholder="Write complete activities for this day..."
+                  >{{ item.description }}</textarea>
+                </div>
+
+                <div class="form-field">
+                  <label>Accommodation</label>
+                  <input
+                    type="text"
+                    name="itinerary_accommodation[]"
+                    value="{{ item.accommodation or '' }}"
+                    placeholder="Hotel in Skardu"
+                  >
+                </div>
+
+                <div class="form-field">
+                  <label>Meals</label>
+                  <input
+                    type="text"
+                    name="itinerary_meals[]"
+                    value="{{ item.meals or '' }}"
+                    placeholder="Breakfast and dinner"
+                  >
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="repeater-item">
+            <div class="repeater-item-header">
+              <strong data-day-heading>Day 1</strong>
+
+              <button
+                type="button"
+                class="remove-row-button"
+                data-remove-row
+              >
+                Remove
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-field">
+                <label>Day Number</label>
+                <input
+                  type="number"
+                  name="itinerary_day_number[]"
+                  value="1"
+                  min="0"
+                >
+              </div>
+
+              <div class="form-field">
+                <label>Day Title</label>
+                <input
+                  type="text"
+                  name="itinerary_title[]"
+                  placeholder="Arrival in Skardu"
+                >
+              </div>
+
+              <div class="form-field full">
+                <label>Day Description</label>
+                <textarea
+                  name="itinerary_description[]"
+                  placeholder="Write complete activities for this day..."
+                ></textarea>
+              </div>
+
+              <div class="form-field">
+                <label>Accommodation</label>
+                <input
+                  type="text"
+                  name="itinerary_accommodation[]"
+                  placeholder="Hotel in Skardu"
+                >
+              </div>
+
+              <div class="form-field">
+                <label>Meals</label>
+                <input
+                  type="text"
+                  name="itinerary_meals[]"
+                  placeholder="Breakfast and dinner"
+                >
+              </div>
+            </div>
+          </div>
+          </div>
+        {% endif %}
+        <div class="repeater-footer">
+
+  <button
+    type="button"
+    class="secondary-button"
+    data-add-row="itinerary"
+  >
+    + Add Another Day
+  </button>
+
+</div>
+
+      
+    </div>
+
+    <!-- =========================
+     ATTRACTIONS / BULLET POINTS
+========================== -->
+
+<div class="form-field full">
+
+  <div class="repeater-heading">
+    <div>
+      <h3>Points to Be Visited and Attractions</h3>
+
+      <p>
+        Add one place per line. Each line will automatically
+        become a separate attraction.
+      </p>
+    </div>
+  </div>
+
+  {% set saved_attractions =
+    tour.attractions
+    | map(attribute='title')
+    | join('\n')
+    if tour
+    else ''
+  %}
+
+  <textarea
+    name="attractions_text"
+    rows="9"
+    placeholder="Mansehra&#10;Karakoram Highway&#10;Naran&#10;Kaghan&#10;Kiwai Waterfall&#10;Lulusar Lake&#10;Babusar Top"
+  >{{ request.form.get('attractions_text', saved_attractions) }}</textarea>
+
+  <small class="field-help">
+    Press Enter after every place. Bullet signs are not required.
+  </small>
+
+</div>
+
+    <div class="form-field full">
+      <label>Included Services</label>
+      <textarea
+        name="included_services"
+        placeholder="Hotel accommodation&#10;Transport&#10;Breakfast"
+      >{{ request.form.get('included_services', tour.included_services if tour else '') }}</textarea>
+    </div>
+
+    <div class="form-field full">
+      <label>Excluded Services</label>
+      <textarea
+        name="excluded_services"
+        placeholder="Personal expenses&#10;Air tickets"
+      >{{ request.form.get('excluded_services', tour.excluded_services if tour else '') }}</textarea>
+    </div>
+
+    <div class="form-field full">
+      <label>Cancellation Policy</label>
+      <textarea
+        name="cancellation_policy"
+        placeholder="Write the cancellation and refund policy..."
+      >{{ request.form.get('cancellation_policy', tour.cancellation_policy if tour else '') }}</textarea>
+    </div>
+
+    <div class="form-field full">
+      <div class="repeater-heading">
+        <div>
+          <h3>Tour FAQs and Important Notes</h3>
+          <p>Add payment procedure, jeep charges and other customer questions.</p>
+        </div>
+
+        <button
+          type="button"
+          class="secondary-button"
+          data-add-row="faq"
+        >
+          + Add FAQ
+        </button>
+      </div>
+
+      <div class="repeater-list" id="faqRows">
+
+        {% if tour and tour.faqs %}
+          {% for item in tour.faqs %}
+            <div class="repeater-item">
+              <div class="repeater-item-header">
+                <strong>Question and Answer</strong>
+
+                <button
+                  type="button"
+                  class="remove-row-button"
+                  data-remove-row
+                >
+                  Remove
+                </button>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-field full">
+                  <label>Question</label>
+                  <input
+                    type="text"
+                    name="faq_question[]"
+                    value="{{ item.question }}"
+                    placeholder="Are jeep charges included?"
+                  >
+                </div>
+
+                <div class="form-field full">
+                  <label>Answer</label>
+                  <textarea
+                    name="faq_answer[]"
+                    placeholder="Explain the answer clearly..."
+                  >{{ item.answer }}</textarea>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="repeater-item">
+            <div class="repeater-item-header">
+              <strong>Question and Answer</strong>
+
+              <button
+                type="button"
+                class="remove-row-button"
+                data-remove-row
+              >
+                Remove
+              </button>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-field full">
+                <label>Question</label>
+                <input
+                  type="text"
+                  name="faq_question[]"
+                  placeholder="Are jeep charges included?"
+                >
+              </div>
+
+              <div class="form-field full">
+                <label>Answer</label>
+                <textarea
+                  name="faq_answer[]"
+                  placeholder="Jeep charges are included only for..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label>Status</label>
+
+      {% set selected_status = request.form.get(
+        'status',
+        tour.status if tour else 'draft'
+      ) %}
+
+      <select name="status">
+        <option value="draft" {% if selected_status == "draft" %}selected{% endif %}>
+          Draft
+        </option>
+        <option value="published" {% if selected_status == "published" %}selected{% endif %}>
+          Published
+        </option>
+        <option value="inactive" {% if selected_status == "inactive" %}selected{% endif %}>
+          Inactive
+        </option>
+      </select>
+    </div>
+
+    <label class="checkbox-field">
+      <input
+        type="checkbox"
+        name="is_featured"
+        {% if request.form.get('is_featured') == 'on' or (tour and tour.is_featured) %}
+          checked
+        {% endif %}
+      >
+      Featured tour
+    </label>
+
+    <div class="form-field full">
+      <button type="submit" class="primary-button">
+        {{ "Create Tour" if form_mode == "add" else "Save Changes" }}
+      </button>
+    </div>
+
+  </form>
+
+  <template id="itineraryTemplate">
+    <div class="repeater-item">
+      <div class="repeater-item-header">
+        <strong data-day-heading>New Day</strong>
+
+        <button
+          type="button"
+          class="remove-row-button"
+          data-remove-row
+        >
+          Remove
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label>Day Number</label>
+          <input
+            type="number"
+            name="itinerary_day_number[]"
+            min="0"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Day Title</label>
+          <input
+            type="text"
+            name="itinerary_title[]"
+            placeholder="Travel to Hunza"
+          >
+        </div>
+
+        <div class="form-field full">
+          <label>Day Description</label>
+          <textarea
+            name="itinerary_description[]"
+            placeholder="Write complete activities for this day..."
+          ></textarea>
+        </div>
+
+        <div class="form-field">
+          <label>Accommodation</label>
+          <input
+            type="text"
+            name="itinerary_accommodation[]"
+            placeholder="Hotel in Hunza"
+          >
+        </div>
+
+        <div class="form-field">
+          <label>Meals</label>
+          <input
+            type="text"
+            name="itinerary_meals[]"
+            placeholder="Breakfast and dinner"
+          >
+        </div>
+      </div>
+    </div>
+  </template>
+
+  
+
+  <template id="faqTemplate">
+    <div class="repeater-item">
+      <div class="repeater-item-header">
+        <strong>Question and Answer</strong>
+
+        <button
+          type="button"
+          class="remove-row-button"
+          data-remove-row
+        >
+          Remove
+        </button>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>Question</label>
+          <input
+            type="text"
+            name="faq_question[]"
+            placeholder="What is the payment procedure?"
+          >
+        </div>
+
+        <div class="form-field full">
+          <label>Answer</label>
+          <textarea
+            name="faq_answer[]"
+            placeholder="Explain the answer clearly..."
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  </template>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"
+></script>
+
+<script
+  src="{{ url_for('static', filename='js/tour-form.js') }}?v=8"
+></script>
+
+{% endblock %}

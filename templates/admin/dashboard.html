@@ -1,0 +1,973 @@
+{% extends "admin/base.html" %}
+
+{% block title %}
+Admin Dashboard
+{% endblock %}
+
+{% block page_title %}
+Admin Dashboard
+{% endblock %}
+
+{% block page_subtitle %}
+Manage tours, bookings and customer requests
+{% endblock %}
+
+{% block extra_css %}
+
+<style>
+  .dashboard-welcome {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(180px, 0.65fr);
+    align-items: center;
+    gap: 30px;
+    min-height: 225px;
+    padding: 37px;
+    color: #ffffff;
+    border-radius: 24px;
+    background:
+      linear-gradient(
+        90deg,
+        rgba(3, 68, 56, 0.98),
+        rgba(13, 114, 92, 0.87)
+      ),
+      url("https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=1400&q=80")
+      center / cover;
+    box-shadow: 0 14px 40px rgba(16, 34, 29, 0.08);
+  }
+
+  .dashboard-welcome::after {
+    content: "";
+    position: absolute;
+    right: -70px;
+    bottom: -100px;
+    width: 290px;
+    height: 290px;
+    border: 38px solid rgba(255, 255, 255, 0.07);
+    border-radius: 50%;
+  }
+
+  .dashboard-welcome-content,
+  .dashboard-welcome-visual {
+    position: relative;
+    z-index: 2;
+  }
+
+  .dashboard-welcome-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 14px;
+    padding: 7px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .dashboard-welcome h2 {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(27px, 3vw, 39px);
+    line-height: 1.2;
+    letter-spacing: -1px;
+  }
+
+  .dashboard-welcome p {
+    max-width: 650px;
+    margin: 12px 0 0;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 12px;
+    line-height: 1.75;
+  }
+
+  .dashboard-welcome-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .dashboard-primary-action,
+  .dashboard-secondary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 0 18px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    transition: 0.22s ease;
+  }
+
+  .dashboard-primary-action {
+    color: #064a3d;
+    background: #f7b733;
+  }
+
+  .dashboard-primary-action:hover {
+    transform: translateY(-2px);
+    background: #ffc34d;
+  }
+
+  .dashboard-secondary-action {
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .dashboard-secondary-action:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .dashboard-welcome-visual {
+    display: flex;
+    justify-content: center;
+  }
+
+  .dashboard-admin-circle {
+    width: 155px;
+    height: 155px;
+    display: grid;
+    place-items: center;
+    border: 2px solid #f7b733;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
+    backdrop-filter: blur(8px);
+  }
+
+  .dashboard-admin-circle span {
+    display: block;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .dashboard-admin-circle strong {
+    display: block;
+    margin: 5px 0;
+    color: #f7b733;
+    font-size: 23px;
+  }
+
+  .dashboard-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+  }
+
+  .dashboard-stat-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-height: 106px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(16, 34, 29, 0.04);
+    transition: 0.2s ease;
+  }
+
+  .dashboard-stat-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 40px rgba(16, 34, 29, 0.08);
+  }
+
+  .dashboard-stat-icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 48px;
+    border-radius: 15px;
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: 20px;
+  }
+
+  .dashboard-stat-details span {
+    display: block;
+    color: var(--muted);
+    font-size: 9px;
+    font-weight: 500;
+  }
+
+  .dashboard-stat-details strong {
+    display: block;
+    margin-top: 3px;
+    font-size: 22px;
+    line-height: 1.2;
+  }
+
+  .dashboard-stat-details .dashboard-revenue {
+    font-size: 16px;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(300px, 0.9fr);
+    gap: 22px;
+    margin-top: 24px;
+  }
+
+  .dashboard-card {
+    min-width: 0;
+    padding: 24px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(16, 34, 29, 0.04);
+  }
+
+  .dashboard-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-card-header h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .dashboard-card-header p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  .dashboard-view-all {
+    color: var(--primary);
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .dashboard-table-wrapper {
+    overflow-x: auto;
+  }
+
+  .dashboard-table {
+    width: 100%;
+    min-width: 680px;
+    border-collapse: collapse;
+  }
+
+  .dashboard-table th {
+    padding: 11px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+    background: #f8faf9;
+    text-align: left;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  .dashboard-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #edf1ef;
+    color: #34443f;
+    font-size: 10px;
+    vertical-align: middle;
+  }
+
+  .dashboard-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .dashboard-table-primary {
+    display: block;
+    color: var(--dark);
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .dashboard-table-secondary {
+    display: block;
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  .dashboard-status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 8px;
+    font-weight: 700;
+    text-transform: capitalize;
+  }
+
+  .dashboard-status-pending,
+  .dashboard-status-new,
+  .dashboard-status-unpaid {
+    color: #854d0e;
+    background: #fef3c7;
+  }
+
+  .dashboard-status-confirmed,
+  .dashboard-status-paid,
+  .dashboard-status-contacted {
+    color: #067647;
+    background: #dcfae6;
+  }
+
+  .dashboard-status-cancelled,
+  .dashboard-status-failed {
+    color: #b42318;
+    background: #fee4e2;
+  }
+
+  .dashboard-status-completed,
+  .dashboard-status-closed {
+    color: #344054;
+    background: #eaecf0;
+  }
+
+  .dashboard-empty-state {
+    padding: 35px 20px;
+    border: 1px dashed #cfdcd6;
+    border-radius: 15px;
+    color: var(--muted);
+    background: #fbfdfc;
+    text-align: center;
+    font-size: 11px;
+  }
+
+  .dashboard-quick-actions {
+    display: grid;
+    gap: 11px;
+  }
+
+  .dashboard-quick-action {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    transition: 0.2s ease;
+  }
+
+  .dashboard-quick-action:hover {
+    border-color: #bcd9ce;
+    background: var(--primary-soft);
+    transform: translateX(3px);
+  }
+
+  .dashboard-quick-action-icon {
+    width: 41px;
+    height: 41px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 41px;
+    border-radius: 12px;
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: 17px;
+  }
+
+  .dashboard-quick-action-details {
+    flex: 1;
+  }
+
+  .dashboard-quick-action-details strong,
+  .dashboard-quick-action-details span {
+    display: block;
+  }
+
+  .dashboard-quick-action-details strong {
+    font-size: 11px;
+  }
+
+  .dashboard-quick-action-details span {
+    margin-top: 2px;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  .dashboard-quick-action-arrow {
+    color: var(--muted);
+    font-size: 15px;
+  }
+
+  .dashboard-inquiry-list {
+    display: grid;
+    gap: 11px;
+  }
+
+  .dashboard-inquiry-item {
+    padding: 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .dashboard-inquiry-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .dashboard-inquiry-item strong {
+    font-size: 11px;
+  }
+
+  .dashboard-inquiry-item p {
+    margin: 5px 0 0;
+    color: var(--muted);
+    font-size: 9px;
+  }
+
+  @media (max-width: 1250px) {
+    .dashboard-stats-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 970px) {
+    .dashboard-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 750px) {
+    .dashboard-welcome {
+      grid-template-columns: 1fr;
+      padding: 28px 23px;
+    }
+
+    .dashboard-welcome-visual {
+      display: none;
+    }
+
+    .dashboard-stats-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+{% endblock %}
+
+{% block top_actions %}
+
+<a
+  href="{{ url_for('public.home') }}"
+  class="secondary-button"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  View Website ↗
+</a>
+
+<a
+  href="{{ url_for('admin.add_tour') }}"
+  class="primary-button"
+>
+  + Add Tour
+</a>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="dashboard-welcome">
+
+  <div class="dashboard-welcome-content">
+
+    <span class="dashboard-welcome-label">
+      ✨ Capture Pakistan Administration
+    </span>
+
+    <h2>
+      Welcome back, {{ current_user.name }}
+    </h2>
+
+    <p>
+      Manage tour packages, customer bookings,
+      inquiries and website activity from one
+      powerful dashboard.
+    </p>
+
+    <div class="dashboard-welcome-actions">
+
+      <a
+        href="{{ url_for('admin.add_tour') }}"
+        class="dashboard-primary-action"
+      >
+        Add New Tour
+        <span>→</span>
+      </a>
+
+      <a
+        href="{{ url_for('admin.bookings') }}"
+        class="dashboard-secondary-action"
+      >
+        Review Bookings
+      </a>
+
+    </div>
+
+  </div>
+
+  <div class="dashboard-welcome-visual">
+
+    <div class="dashboard-admin-circle">
+      <div>
+        <span>Business overview</span>
+        <strong>Admin</strong>
+        <span>Control Center</span>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<section class="dashboard-stats-grid">
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">⛰</div>
+
+    <div class="dashboard-stat-details">
+      <span>Total Tours</span>
+      <strong>{{ stats.total_tours | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">✓</div>
+
+    <div class="dashboard-stat-details">
+      <span>Published Tours</span>
+      <strong>{{ stats.published_tours | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">▣</div>
+
+    <div class="dashboard-stat-details">
+      <span>Total Bookings</span>
+      <strong>{{ stats.total_bookings | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">◷</div>
+
+    <div class="dashboard-stat-details">
+      <span>Pending Bookings</span>
+      <strong>{{ stats.pending_bookings | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">✉</div>
+
+    <div class="dashboard-stat-details">
+      <span>New Inquiries</span>
+      <strong>{{ stats.new_inquiries | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">○</div>
+
+    <div class="dashboard-stat-details">
+      <span>Total Customers</span>
+      <strong>{{ stats.total_customers | default(0) }}</strong>
+    </div>
+  </article>
+
+  <article class="dashboard-stat-card">
+    <div class="dashboard-stat-icon">₨</div>
+
+    <div class="dashboard-stat-details">
+      <span>Total Paid Revenue</span>
+
+      <strong class="dashboard-revenue">
+        PKR {{ "{:,.0f}".format(stats.total_revenue or 0) }}
+      </strong>
+    </div>
+  </article>
+
+</section>
+
+<section class="dashboard-grid">
+
+  <article class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+      <div>
+        <h3>Recent Bookings</h3>
+        <p>Latest tour reservations received</p>
+      </div>
+
+      <a
+        href="{{ url_for('admin.bookings') }}"
+        class="dashboard-view-all"
+      >
+        View All
+      </a>
+
+    </div>
+
+    {% if recent_bookings %}
+
+      <div class="dashboard-table-wrapper">
+
+        <table class="dashboard-table">
+
+          <thead>
+            <tr>
+              <th>Booking</th>
+              <th>Customer</th>
+              <th>Tour</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for booking in recent_bookings %}
+
+              <tr>
+
+                <td>
+                  <a
+                    href="{{ url_for('admin.booking_detail', booking_id=booking.id) }}"
+                    class="dashboard-table-primary"
+                  >
+                    {{ booking.booking_number }}
+                  </a>
+
+                  <span class="dashboard-table-secondary">
+                    {{ booking.created_at.strftime("%d %b %Y") }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ booking.customer_name }}
+                </td>
+
+                <td>
+                  {{ booking.tour_title }}
+                </td>
+
+                <td>
+                  PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}
+                </td>
+
+                <td>
+                  <span
+                    class="dashboard-status-badge
+                    dashboard-status-{{ booking.booking_status }}"
+                  >
+                    {{ booking.booking_status }}
+                  </span>
+                </td>
+
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    {% else %}
+
+      <div class="dashboard-empty-state">
+        No tour bookings have been received yet.
+      </div>
+
+    {% endif %}
+
+  </article>
+
+  <aside class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+      <div>
+        <h3>Quick Actions</h3>
+        <p>Frequently used admin shortcuts</p>
+      </div>
+
+    </div>
+
+    <div class="dashboard-quick-actions">
+
+      <a
+        href="{{ url_for('admin.add_tour') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">＋</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Add New Tour</strong>
+          <span>Create and publish a package</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.tours') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">⛰</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Manage Tours</strong>
+          <span>Edit or remove existing tours</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.bookings') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">▣</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Review Bookings</strong>
+          <span>Confirm or cancel reservations</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.inquiries') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">✉</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Customer Inquiries</strong>
+          <span>Review custom tour requests</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.customers') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">◎</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Customer Management</strong>
+          <span>View accounts and booking history</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.reports') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">◫</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Reports & Analytics</strong>
+          <span>Review revenue and performance</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+      <a
+        href="{{ url_for('admin.email_notifications') }}"
+        class="dashboard-quick-action"
+      >
+
+        <span class="dashboard-quick-action-icon">✦</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>Email Notifications</strong>
+          <span>Manage team notification recipients</span>
+        </span>
+
+        <span class="dashboard-quick-action-arrow">→</span>
+
+      </a>
+
+    </div>
+
+  </aside>
+
+</section>
+
+<section class="dashboard-grid">
+
+  <article class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+      <div>
+        <h3>Recent Inquiries</h3>
+        <p>Latest customer quote requests</p>
+      </div>
+
+      <a
+        href="{{ url_for('admin.inquiries') }}"
+        class="dashboard-view-all"
+      >
+        View All
+      </a>
+
+    </div>
+
+    {% if recent_inquiries %}
+
+      <div class="dashboard-inquiry-list">
+
+        {% for inquiry in recent_inquiries %}
+
+          <div class="dashboard-inquiry-item">
+
+            <div class="dashboard-inquiry-top">
+
+              <div>
+                <strong>{{ inquiry.name }}</strong>
+
+                <p>
+                  {{ inquiry.destination or "Custom destination" }}
+                  ·
+                  {{ inquiry.phone }}
+                </p>
+              </div>
+
+              <span
+                class="dashboard-status-badge
+                dashboard-status-{{ inquiry.status }}"
+              >
+                {{ inquiry.status }}
+              </span>
+
+            </div>
+
+          </div>
+
+        {% endfor %}
+
+      </div>
+
+    {% else %}
+
+      <div class="dashboard-empty-state">
+        No customer inquiries have been received yet.
+      </div>
+
+    {% endif %}
+
+  </article>
+
+  <aside class="dashboard-card">
+
+    <div class="dashboard-card-header">
+
+      <div>
+        <h3>Business Summary</h3>
+        <p>Current Capture Pakistan activity</p>
+      </div>
+
+    </div>
+
+    <div class="dashboard-quick-actions">
+
+      <div class="dashboard-quick-action">
+
+        <span class="dashboard-quick-action-icon">✓</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>
+            {{ stats.published_tours | default(0) }}
+            Published Tours
+          </strong>
+
+          <span>Currently visible on the website</span>
+        </span>
+
+      </div>
+
+      <div class="dashboard-quick-action">
+
+        <span class="dashboard-quick-action-icon">◷</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>
+            {{ stats.pending_bookings | default(0) }}
+            Pending Bookings
+          </strong>
+
+          <span>Waiting for admin confirmation</span>
+        </span>
+
+      </div>
+
+      <div class="dashboard-quick-action">
+
+        <span class="dashboard-quick-action-icon">✉</span>
+
+        <span class="dashboard-quick-action-details">
+          <strong>
+            {{ stats.new_inquiries | default(0) }}
+            New Inquiries
+          </strong>
+
+          <span>Waiting for a response</span>
+        </span>
+
+      </div>
+
+    </div>
+
+  </aside>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/admin-dashboard.js') }}"
+></script>
+
+{% endblock %}

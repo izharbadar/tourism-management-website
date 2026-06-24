@@ -1,0 +1,1804 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+{{ tour.title }} | Capture Pakistan
+{% endblock %}
+
+{% block meta_description %}
+{{ tour.short_description or tour.description[:155] }}
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tour-gallery.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/inquiry-system.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-system.css') }}"
+>
+
+<link
+  href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css"
+  rel="stylesheet"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tour-detail.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tour-reviews.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/tour-title-rating.css') }}"
+>
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/wishlist.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="detail-page">
+
+  <div class="page-container">
+
+    <nav class="breadcrumbs">
+      <a href="{{ url_for('public.home') }}">Home</a>
+      <span>/</span>
+
+      <a href="{{ url_for('public.public_tours') }}">Tours</a>
+      <span>/</span>
+
+      <span>{{ tour.title }}</span>
+    </nav>
+
+    <header class="tour-heading">
+
+      <div>
+
+        <div class="tour-labels">
+
+          {% if tour.category %}
+            <span class="tour-category">
+              {{ tour.category.name }}
+            </span>
+          {% endif %}
+
+          {% if tour.is_featured %}
+            <span class="top-rated">
+              Featured Tour
+            </span>
+          {% endif %}
+
+        </div>
+
+        <h1>{{ tour.title }}</h1>
+
+        {% include "tours/_title_rating.html" %}
+
+        <div class="heading-meta">
+          <span>📍 {{ tour.destination }}</span>
+          <span>◷ {{ tour.duration_days }} Days</span>
+          <span>
+            {{ tour.tour_type.replace("_", " ")|title }}
+          </span>
+        </div>
+
+      </div>
+
+      <div class="heading-actions">
+
+        {% set is_wishlisted = (
+          current_user.is_authenticated
+          and current_user.role == "customer"
+          and tour.id in current_user.wishlist_tour_ids
+        ) %}
+
+        <form
+          method="POST"
+          action="{{ url_for('customer.toggle_wishlist', tour_id=tour.id) }}"
+          class="wishlist-form"
+          data-wishlist-form
+        >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+          <input
+            type="hidden"
+            name="next"
+            value="{{ request.path }}"
+          >
+
+          <button
+            type="submit"
+            class="wishlist-toggle-button{% if is_wishlisted %} is-saved{% endif %}"
+            data-wishlist-button
+            data-tour-id="{{ tour.id }}"
+            aria-pressed="{{ 'true' if is_wishlisted else 'false' }}"
+          >
+            <span class="wishlist-heart">
+              {{ "♥" if is_wishlisted else "♡" }}
+            </span>
+            <span class="wishlist-button-label">
+              {{ "Saved" if is_wishlisted else "Save" }}
+            </span>
+          </button>
+
+        </form>
+
+        <button type="button" id="shareTourButton">
+          ↗ Share
+        </button>
+
+      </div>
+
+    </header>
+
+    <div class="top-layout">
+
+      <div class="tour-main-column">
+
+        <!-- Replace the old gallery section in tour_detail.html with this -->
+
+<section
+  class="real-tour-gallery"
+  data-tour-gallery
+>
+
+  {% if tour.gallery_images %}
+
+    <button
+      type="button"
+      class="real-gallery-main"
+      data-gallery-open="0"
+      aria-label="Open {{ tour.title }} gallery"
+    >
+
+      <img
+        src="{{ url_for('static', filename=tour.gallery_images[0].image_path) }}"
+        alt="{{ tour.gallery_images[0].alt_text or tour.title }}"
+      >
+
+      <span class="main-photo-label">
+        Cover Photo
+      </span>
+
+    </button>
+
+    <div class="real-gallery-side">
+
+      {% for image in tour.gallery_images[1:5] %}
+
+        <button
+          type="button"
+          class="real-gallery-thumb"
+          data-gallery-open="{{ loop.index }}"
+          aria-label="Open gallery photo {{ loop.index + 1 }}"
+        >
+
+          <img
+            src="{{ url_for('static', filename=image.image_path) }}"
+            alt="{{ image.alt_text or tour.title }}"
+          >
+
+          {% if loop.last and tour.gallery_images|length > 5 %}
+
+            <span class="more-photo-overlay">
+              +{{ tour.gallery_images|length - 5 }}
+              More Photos
+            </span>
+
+          {% endif %}
+
+        </button>
+
+      {% endfor %}
+
+      {% for number in range(
+        4 - [tour.gallery_images|length - 1, 4]|min
+      ) %}
+
+        <div class="real-gallery-empty">
+          <span>⛰</span>
+        </div>
+
+      {% endfor %}
+
+    </div>
+
+  {% elif tour.main_image %}
+
+    <button
+      type="button"
+      class="real-gallery-main real-gallery-single"
+      data-gallery-open="0"
+    >
+
+      <img
+        src="{{ tour.main_image }}"
+        alt="{{ tour.title }}"
+      >
+
+    </button>
+
+  {% else %}
+
+    <div class="real-gallery-main real-gallery-single">
+
+      <div class="real-gallery-placeholder">
+        <span>⛰</span>
+        <p>Tour gallery coming soon</p>
+      </div>
+
+    </div>
+
+  {% endif %}
+
+</section>
+
+<div
+  class="gallery-source-data"
+  hidden
+>
+
+  {% if tour.gallery_images %}
+
+    {% for image in tour.gallery_images %}
+
+      <span
+        data-gallery-source="{{ url_for('static', filename=image.image_path) }}"
+        data-gallery-alt="{{ image.alt_text or tour.title }}"
+      ></span>
+
+    {% endfor %}
+
+  {% elif tour.main_image %}
+
+    <span
+      data-gallery-source="{{ tour.main_image }}"
+      data-gallery-alt="{{ tour.title }}"
+    ></span>
+
+  {% endif %}
+
+</div>
+
+<div
+  class="tour-gallery-lightbox"
+  id="tourGalleryLightbox"
+  hidden
+  aria-hidden="true"
+>
+
+  <button
+    type="button"
+    class="lightbox-close"
+    data-gallery-close
+    aria-label="Close gallery"
+  >
+    ×
+  </button>
+
+  <button
+    type="button"
+    class="lightbox-navigation lightbox-previous"
+    data-gallery-previous
+    aria-label="Previous image"
+  >
+    ‹
+  </button>
+
+  <figure class="lightbox-figure">
+
+    <img
+      src=""
+      alt=""
+      id="lightboxGalleryImage"
+    >
+
+    <figcaption>
+
+      <span id="lightboxGalleryCaption"></span>
+
+      <strong id="lightboxGalleryCounter"></strong>
+
+    </figcaption>
+
+  </figure>
+
+  <button
+    type="button"
+    class="lightbox-navigation lightbox-next"
+    data-gallery-next
+    aria-label="Next image"
+  >
+    ›
+  </button>
+
+</div>
+
+
+        <p class="tour-introduction">
+          {{ tour.short_description or tour.description }}
+        </p>
+
+        <section class="tour-promise-grid">
+
+          <article class="tour-promise-card">
+            <span class="promise-icon">✓</span>
+
+            <div>
+              <strong>Free cancellation</strong>
+
+              <p>
+                Cancel up to 24 hours in advance for a full refund.
+              </p>
+            </div>
+          </article>
+
+          <article class="tour-promise-card">
+            <span class="promise-icon">▣</span>
+
+            <div>
+              <strong>Reserve now &amp; pay later</strong>
+
+              <p>
+                Keep your travel plans flexible — book your spot
+                and pay nothing today.
+              </p>
+            </div>
+          </article>
+
+        </section>
+
+        <section class="quick-features">
+
+          <article>
+            <span class="feature-icon">◷</span>
+
+            <div>
+              <strong>Duration</strong>
+              <p>{{ tour.duration_days }} Days</p>
+            </div>
+          </article>
+
+          <article>
+            <span class="feature-icon">⛰</span>
+
+            <div>
+              <strong>Category</strong>
+              <p>
+                {{ tour.category.name if tour.category else "Pakistan Tour" }}
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span class="feature-icon">▣</span>
+
+            <div>
+              <strong>Tour Type</strong>
+              <p>
+                {{ tour.tour_type.replace("_", " ")|title }}
+              </p>
+            </div>
+          </article>
+
+          <article>
+            <span class="feature-icon">📍</span>
+
+            <div>
+              <strong>Destination</strong>
+              <p>{{ tour.destination }}</p>
+            </div>
+          </article>
+
+        </section>
+
+      </div>
+
+   <aside class="booking-card" id="bookingCard">
+
+  <div
+    class="booking-tabs"
+    role="tablist"
+    aria-label="Tour booking options"
+  >
+    <button
+      type="button"
+      class="booking-tab active"
+      data-booking-tab="booking"
+      aria-selected="true"
+    >
+      Booking
+    </button>
+
+    <button
+      type="button"
+      class="booking-tab"
+      data-booking-tab="private"
+      aria-selected="false"
+    >
+      Private Tour
+    </button>
+
+    <button
+      type="button"
+      class="booking-tab"
+      data-booking-tab="inquiry"
+      aria-selected="false"
+    >
+      Inquiry
+    </button>
+  </div>
+
+  <div
+    class="booking-tab-panel active"
+    data-booking-panel="booking"
+  >
+    <form
+      method="POST"
+      action="{{ url_for('customer.booking_checkout', slug=tour.slug) }}"
+      id="tourBookingForm"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <small class="price-label">From</small>
+
+      <div class="booking-price">
+        <strong>
+          PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+        </strong>
+
+        <span>per person</span>
+      </div>
+
+      {% if tour.couple_price and tour.couple_price > 0 %}
+        <p class="couple-price-note">
+          Couple package:
+          <strong>
+            PKR {{ "{:,.0f}".format(tour.couple_price) }}
+          </strong>
+        </p>
+      {% endif %}
+
+      <div class="booking-field">
+        <label for="pricingType">
+          Pricing option
+        </label>
+
+        <select
+          id="pricingType"
+          name="pricing_type"
+        >
+          <option
+            value="person"
+            data-price="{{ tour.base_price or 0 }}"
+          >
+            Per Person
+          </option>
+
+          {% if tour.couple_price and tour.couple_price > 0 %}
+            <option
+              value="couple"
+              data-price="{{ tour.couple_price }}"
+            >
+              Per Couple
+            </option>
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="booking-field">
+        <label
+          for="bookingQuantity"
+          id="quantityLabel"
+        >
+          Adults
+        </label>
+
+        <select
+          id="bookingQuantity"
+          name="quantity"
+        >
+          {% for number in range(1, 11) %}
+            <option value="{{ number }}">
+              {{ number }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="booking-field">
+        <label for="childCount">
+          Children
+        </label>
+
+        <select
+          id="childCount"
+          name="children"
+          data-child-price="{{ tour.child_price or 0 }}"
+        >
+          {% for number in range(0, 11) %}
+            <option value="{{ number }}">
+              {{ number }}
+            </option>
+          {% endfor %}
+        </select>
+
+        {% if tour.child_price and tour.child_price > 0 %}
+          <small class="booking-help">
+            PKR {{ "{:,.0f}".format(tour.child_price) }}
+            per child
+          </small>
+        {% endif %}
+      </div>
+
+      <div class="booking-field">
+        <label for="travelDate">
+          Travel date
+        </label>
+
+        <input
+          type="date"
+          id="travelDate"
+          name="travel_date"
+          required
+        >
+      </div>
+
+      <div class="booking-field">
+        <label for="specialRequest">
+          Special request
+        </label>
+
+        <textarea
+          id="specialRequest"
+          name="special_request"
+          rows="3"
+          placeholder="Pickup city, room preference or other notes..."
+        ></textarea>
+      </div>
+
+      <div class="estimated-total">
+        <span>Estimated total</span>
+
+        <strong id="estimatedTotal">
+          PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+        </strong>
+      </div>
+
+      {% if current_user.is_authenticated %}
+
+        {% if current_user.role == "customer" %}
+          <button
+            type="submit"
+            class="book-tour-button"
+          >
+            Continue to Booking Details
+          </button>
+        {% else %}
+          <p class="booking-login-note">
+            Please use a customer account to create a booking.
+          </p>
+        {% endif %}
+
+      {% else %}
+
+        <a
+          href="{{ url_for('auth.login', next=request.path) }}"
+          class="book-tour-button"
+        >
+          Login to Book
+        </a>
+
+        <p class="booking-login-note">
+          Login or create an account before reserving this tour.
+        </p>
+
+      {% endif %}
+
+      <div class="booking-benefits">
+        <div class="booking-benefit-row">
+          <span>✓</span>
+
+          <div>
+            <strong>Free cancellation</strong>
+
+            <p>
+              Cancel an unpaid booking from your account.
+            </p>
+          </div>
+        </div>
+
+        <div class="booking-benefit-row">
+          <span>▣</span>
+
+          <div>
+            <strong>Reserve now &amp; pay later</strong>
+
+            <p>
+              Review your contact and payment details before confirming.
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div
+    class="booking-tab-panel"
+    data-booking-panel="private"
+    hidden
+  >
+    <div class="contact-tab-content">
+
+      <div class="contact-tab-icon">✦</div>
+
+      <span class="contact-tab-label">
+        Private &amp; Customized Tours
+      </span>
+
+      <h3>Request a Custom Quotation</h3>
+
+      <p>
+        Share your travel requirements and our team
+        will prepare a personalized quotation.
+      </p>
+
+      <form
+        method="POST"
+        action="{{ url_for('public.submit_tour_inquiry', slug=tour.slug) }}"
+        class="tour-inquiry-form"
+      >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <input
+          type="hidden"
+          name="inquiry_type"
+          value="private_tour"
+        >
+
+        <div class="inquiry-form-grid">
+
+          <div class="inquiry-field full">
+            <label>Full Name *</label>
+
+            <input
+              type="text"
+              name="customer_name"
+              value="{{ current_user.name if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Email *</label>
+
+            <input
+              type="email"
+              name="customer_email"
+              value="{{ current_user.email if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>WhatsApp Number *</label>
+
+            <input
+              type="tel"
+              name="customer_phone"
+              value="{{ current_user.phone or '' if current_user.is_authenticated else '' }}"
+              placeholder="+92 300 1234567"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Preferred Date</label>
+
+            <input
+              type="date"
+              name="preferred_date"
+              data-future-date
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Travelers *</label>
+
+            <input
+              type="number"
+              name="travelers"
+              value="2"
+              min="1"
+              max="50"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Tour Requirements *</label>
+
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="Tell us your pickup city, hotel preference, dates and other requirements..."
+              required
+            ></textarea>
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="submit-inquiry-button"
+        >
+          Request Private Quotation
+        </button>
+
+      </form>
+
+      <div class="contact-separator">
+        <span>or contact us directly</span>
+      </div>
+
+      <a
+        href="#"
+        class="contact-action whatsapp-action"
+        data-whatsapp-link
+        data-message="Hello Capture Pakistan, I need a private or customized quotation for {{ tour.title }}."
+      >
+        Get Quotation on WhatsApp
+      </a>
+
+      <a
+        href="#"
+        class="contact-action email-action"
+        data-email-link
+        data-subject="Private Tour Quotation - {{ tour.title }}"
+        data-body="Hello Capture Pakistan, I would like a private or customized quotation for {{ tour.title }}."
+      >
+        Request Quotation by Email
+      </a>
+
+    </div>
+  </div>
+
+  <div
+    class="booking-tab-panel"
+    data-booking-panel="inquiry"
+    hidden
+  >
+    <div class="contact-tab-content inquiry-content">
+
+      <div class="contact-tab-icon">?</div>
+
+      <span class="contact-tab-label">
+        Ask About This Tour
+      </span>
+
+      <h3>Send Your Inquiry</h3>
+
+      <p>
+        Ask about availability, pickup, hotels,
+        jeep charges, pricing or payment procedure.
+      </p>
+
+      <form
+        method="POST"
+        action="{{ url_for('public.submit_tour_inquiry', slug=tour.slug) }}"
+        class="tour-inquiry-form"
+      >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="inquiry-form-grid">
+
+          <div class="inquiry-field full">
+            <label>Inquiry Type *</label>
+
+            <select
+              name="inquiry_type"
+              required
+            >
+              <option value="general">
+                General Question
+              </option>
+
+              <option value="customized_tour">
+                Customized Tour
+              </option>
+
+              <option value="group_tour">
+                Group Tour
+              </option>
+
+              <option value="price_quotation">
+                Price Quotation
+              </option>
+            </select>
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Full Name *</label>
+
+            <input
+              type="text"
+              name="customer_name"
+              value="{{ current_user.name if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Email *</label>
+
+            <input
+              type="email"
+              name="customer_email"
+              value="{{ current_user.email if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>WhatsApp Number *</label>
+
+            <input
+              type="tel"
+              name="customer_phone"
+              value="{{ current_user.phone or '' if current_user.is_authenticated else '' }}"
+              placeholder="+92 300 1234567"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Preferred Date</label>
+
+            <input
+              type="date"
+              name="preferred_date"
+              data-future-date
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Travelers *</label>
+
+            <input
+              type="number"
+              name="travelers"
+              value="1"
+              min="1"
+              max="50"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Your Question *</label>
+
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="Write your question or requirements..."
+              required
+            ></textarea>
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="submit-inquiry-button"
+        >
+          Submit Inquiry
+        </button>
+
+      </form>
+
+      <div class="contact-separator">
+        <span>or send a quick message</span>
+      </div>
+
+      <a
+        href="#"
+        class="contact-action whatsapp-action"
+        data-whatsapp-link
+        data-message="Hello Capture Pakistan, I have a question about {{ tour.title }}."
+      >
+        Send Inquiry on WhatsApp
+      </a>
+
+    </div>
+  </div>
+
+</aside>
+
+
+
+
+    </div>
+
+    <div class="detail-content-layout">
+
+      <div class="detail-content">
+
+        <section class="content-section">
+
+          <div class="section-heading">
+            <span>Overview</span>
+            <h2>About This Tour</h2>
+          </div>
+
+          <div class="rich-text ql-editor">
+  {{ tour.description | safe }}
+</div>
+        </section>
+
+        {% if tour.attractions %}
+
+          <section class="content-section">
+
+            <div class="section-heading">
+              <span>Highlights</span>
+              <h2>Points to Be Visited and Attractions</h2>
+            </div>
+
+            <div class="attractions-grid">
+
+              {% for attraction in tour.attractions %}
+
+                <div class="attraction-item">
+                  <span>✓</span>
+                  <strong>{{ attraction.title }}</strong>
+                </div>
+
+              {% endfor %}
+
+            </div>
+
+          </section>
+
+        {% endif %}
+
+        {% if tour.included_services or tour.excluded_services %}
+
+          <section class="content-section">
+
+            <div class="section-heading">
+              <span>Package Details</span>
+              <h2>What's Included and Excluded</h2>
+            </div>
+
+            <div class="included-grid">
+
+              <div class="included-card">
+
+                <h3>
+                  <span class="included-symbol">✓</span>
+                  Included Services
+                </h3>
+
+                {% if tour.included_services %}
+
+                  <ul>
+                    {% for item in tour.included_services.splitlines() %}
+                      {% if item.strip() %}
+                        <li>{{ item }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+
+                {% else %}
+
+                  <p>Contact us for package inclusions.</p>
+
+                {% endif %}
+
+              </div>
+
+              <div class="excluded-card">
+
+                <h3>
+                  <span class="excluded-symbol">×</span>
+                  Excluded Services
+                </h3>
+
+                {% if tour.excluded_services %}
+
+                  <ul>
+                    {% for item in tour.excluded_services.splitlines() %}
+                      {% if item.strip() %}
+                        <li>{{ item }}</li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+
+                {% else %}
+
+                  <p>No exclusions have been listed.</p>
+
+                {% endif %}
+
+              </div>
+
+            </div>
+
+          </section>
+
+        {% endif %}
+
+        {% if tour.itineraries %}
+
+          <section class="content-section">
+
+            <div class="section-heading">
+              <span>Day-by-Day Plan</span>
+              <h2>Tour Itinerary</h2>
+            </div>
+
+            <div class="itinerary-list">
+
+              {% for item in tour.itineraries %}
+
+                <article class="accordion-item">
+
+                  <button
+                    type="button"
+                    class="accordion-trigger"
+                    aria-expanded="{{ 'true' if loop.first else 'false' }}"
+                  >
+
+                    <span class="day-number">
+                      Day {{ item.day_number }}
+                    </span>
+
+                    <span class="accordion-title">
+                      {{ item.title }}
+                    </span>
+
+                    <span class="accordion-icon">
+                      +
+                    </span>
+
+                  </button>
+
+                  <div
+                    class="accordion-content"
+                    {% if not loop.first %}hidden{% endif %}
+                  >
+
+                    <div class="itinerary-description">
+  {{ item.description }}
+</div>
+
+                    {% if item.accommodation or item.meals %}
+
+                      <div class="day-details">
+
+                        {% if item.accommodation %}
+                          <span>
+                            🏨 {{ item.accommodation }}
+                          </span>
+                        {% endif %}
+
+                        {% if item.meals %}
+                          <span>
+                            🍽 {{ item.meals }}
+                          </span>
+                        {% endif %}
+
+                      </div>
+
+                    {% endif %}
+
+                  </div>
+
+                </article>
+
+              {% endfor %}
+
+            </div>
+
+          </section>
+
+        {% endif %}
+
+        {% if tour.faqs %}
+
+          <section class="content-section">
+
+            <div class="section-heading">
+              <span>Important Information</span>
+              <h2>Frequently Asked Questions</h2>
+            </div>
+
+            <div class="faq-list">
+
+              {% for faq in tour.faqs if faq.is_active %}
+
+                <article class="accordion-item">
+
+                  <button
+                    type="button"
+                    class="accordion-trigger"
+                    aria-expanded="false"
+                  >
+
+                    <span class="accordion-title">
+                      {{ faq.question }}
+                    </span>
+
+                    <span class="accordion-icon">
+                      +
+                    </span>
+
+                  </button>
+
+                  <div
+                    class="accordion-content"
+                    hidden
+                  >
+                    <p>{{ faq.answer }}</p>
+                  </div>
+
+                </article>
+
+              {% endfor %}
+
+            </div>
+
+          </section>
+
+        {% endif %}
+
+        {% if tour.cancellation_policy %}
+
+          <section class="policy-card">
+
+            <span class="policy-icon">↺</span>
+
+            <div>
+              <h2>Cancellation and Refund Policy</h2>
+
+              <p>
+                {{ tour.cancellation_policy }}
+              </p>
+            </div>
+
+          </section>
+
+        {% endif %}
+
+      </div>
+
+      <aside class="booking-card" id="bookingCard">
+
+  <div
+    class="booking-tabs"
+    role="tablist"
+    aria-label="Tour booking options"
+  >
+    <button
+      type="button"
+      class="booking-tab active"
+      data-booking-tab="booking"
+      aria-selected="true"
+    >
+      Booking
+    </button>
+
+    <button
+      type="button"
+      class="booking-tab"
+      data-booking-tab="private"
+      aria-selected="false"
+    >
+      Private Tour
+    </button>
+
+    <button
+      type="button"
+      class="booking-tab"
+      data-booking-tab="inquiry"
+      aria-selected="false"
+    >
+      Inquiry
+    </button>
+  </div>
+
+  <div
+    class="booking-tab-panel active"
+    data-booking-panel="booking"
+  >
+    <form
+      method="POST"
+      action="{{ url_for('customer.booking_checkout', slug=tour.slug) }}"
+      id="tourBookingForm"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <small class="price-label">From</small>
+
+      <div class="booking-price">
+        <strong>
+          PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+        </strong>
+
+        <span>per person</span>
+      </div>
+
+      {% if tour.couple_price and tour.couple_price > 0 %}
+        <p class="couple-price-note">
+          Couple package:
+          <strong>
+            PKR {{ "{:,.0f}".format(tour.couple_price) }}
+          </strong>
+        </p>
+      {% endif %}
+
+      <div class="booking-field">
+        <label for="pricingType">
+          Pricing option
+        </label>
+
+        <select
+          id="pricingType"
+          name="pricing_type"
+        >
+          <option
+            value="person"
+            data-price="{{ tour.base_price or 0 }}"
+          >
+            Per Person
+          </option>
+
+          {% if tour.couple_price and tour.couple_price > 0 %}
+            <option
+              value="couple"
+              data-price="{{ tour.couple_price }}"
+            >
+              Per Couple
+            </option>
+          {% endif %}
+        </select>
+      </div>
+
+      <div class="booking-field">
+        <label
+          for="bookingQuantity"
+          id="quantityLabel"
+        >
+          Adults
+        </label>
+
+        <select
+          id="bookingQuantity"
+          name="quantity"
+        >
+          {% for number in range(1, 11) %}
+            <option value="{{ number }}">
+              {{ number }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="booking-field">
+        <label for="childCount">
+          Children
+        </label>
+
+        <select
+          id="childCount"
+          name="children"
+          data-child-price="{{ tour.child_price or 0 }}"
+        >
+          {% for number in range(0, 11) %}
+            <option value="{{ number }}">
+              {{ number }}
+            </option>
+          {% endfor %}
+        </select>
+
+        {% if tour.child_price and tour.child_price > 0 %}
+          <small class="booking-help">
+            PKR {{ "{:,.0f}".format(tour.child_price) }}
+            per child
+          </small>
+        {% endif %}
+      </div>
+
+      <div class="booking-field">
+        <label for="travelDate">
+          Travel date
+        </label>
+
+        <input
+          type="date"
+          id="travelDate"
+          name="travel_date"
+          required
+        >
+      </div>
+
+      <div class="booking-field">
+        <label for="specialRequest">
+          Special request
+        </label>
+
+        <textarea
+          id="specialRequest"
+          name="special_request"
+          rows="3"
+          placeholder="Pickup city, room preference or other notes..."
+        ></textarea>
+      </div>
+
+      <div class="estimated-total">
+        <span>Estimated total</span>
+
+        <strong id="estimatedTotal">
+          PKR {{ "{:,.0f}".format(tour.base_price or 0) }}
+        </strong>
+      </div>
+
+      {% if current_user.is_authenticated %}
+
+        {% if current_user.role == "customer" %}
+          <button
+            type="submit"
+            class="book-tour-button"
+          >
+            Continue to Booking Details
+          </button>
+        {% else %}
+          <p class="booking-login-note">
+            Please use a customer account to create a booking.
+          </p>
+        {% endif %}
+
+      {% else %}
+
+        <a
+          href="{{ url_for('auth.login', next=request.path) }}"
+          class="book-tour-button"
+        >
+          Login to Book
+        </a>
+
+        <p class="booking-login-note">
+          Login or create an account before reserving this tour.
+        </p>
+
+      {% endif %}
+
+      <div class="booking-benefits">
+        <div class="booking-benefit-row">
+          <span>✓</span>
+
+          <div>
+            <strong>Free cancellation</strong>
+
+            <p>
+              Cancel an unpaid booking from your account.
+            </p>
+          </div>
+        </div>
+
+        <div class="booking-benefit-row">
+          <span>▣</span>
+
+          <div>
+            <strong>Reserve now &amp; pay later</strong>
+
+            <p>
+              Review your contact and payment details before confirming.
+            </p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div
+    class="booking-tab-panel"
+    data-booking-panel="private"
+    hidden
+  >
+    <div class="contact-tab-content">
+
+      <div class="contact-tab-icon">✦</div>
+
+      <span class="contact-tab-label">
+        Private &amp; Customized Tours
+      </span>
+
+      <h3>Request a Custom Quotation</h3>
+
+      <p>
+        Share your travel requirements and our team
+        will prepare a personalized quotation.
+      </p>
+
+      <form
+        method="POST"
+        action="{{ url_for('public.submit_tour_inquiry', slug=tour.slug) }}"
+        class="tour-inquiry-form"
+      >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <input
+          type="hidden"
+          name="inquiry_type"
+          value="private_tour"
+        >
+
+        <div class="inquiry-form-grid">
+
+          <div class="inquiry-field full">
+            <label>Full Name *</label>
+
+            <input
+              type="text"
+              name="customer_name"
+              value="{{ current_user.name if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Email *</label>
+
+            <input
+              type="email"
+              name="customer_email"
+              value="{{ current_user.email if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>WhatsApp Number *</label>
+
+            <input
+              type="tel"
+              name="customer_phone"
+              value="{{ current_user.phone or '' if current_user.is_authenticated else '' }}"
+              placeholder="+92 300 1234567"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Preferred Date</label>
+
+            <input
+              type="date"
+              name="preferred_date"
+              data-future-date
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Travelers *</label>
+
+            <input
+              type="number"
+              name="travelers"
+              value="2"
+              min="1"
+              max="50"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Tour Requirements *</label>
+
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="Tell us your pickup city, hotel preference, dates and other requirements..."
+              required
+            ></textarea>
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="submit-inquiry-button"
+        >
+          Request Private Quotation
+        </button>
+
+      </form>
+
+      <div class="contact-separator">
+        <span>or contact us directly</span>
+      </div>
+
+      <a
+        href="#"
+        class="contact-action whatsapp-action"
+        data-whatsapp-link
+        data-message="Hello Capture Pakistan, I need a private or customized quotation for {{ tour.title }}."
+      >
+        Get Quotation on WhatsApp
+      </a>
+
+      <a
+        href="#"
+        class="contact-action email-action"
+        data-email-link
+        data-subject="Private Tour Quotation - {{ tour.title }}"
+        data-body="Hello Capture Pakistan, I would like a private or customized quotation for {{ tour.title }}."
+      >
+        Request Quotation by Email
+      </a>
+
+    </div>
+  </div>
+
+  <div
+    class="booking-tab-panel"
+    data-booking-panel="inquiry"
+    hidden
+  >
+    <div class="contact-tab-content inquiry-content">
+
+      <div class="contact-tab-icon">?</div>
+
+      <span class="contact-tab-label">
+        Ask About This Tour
+      </span>
+
+      <h3>Send Your Inquiry</h3>
+
+      <p>
+        Ask about availability, pickup, hotels,
+        jeep charges, pricing or payment procedure.
+      </p>
+
+      <form
+        method="POST"
+        action="{{ url_for('public.submit_tour_inquiry', slug=tour.slug) }}"
+        class="tour-inquiry-form"
+      >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="inquiry-form-grid">
+
+          <div class="inquiry-field full">
+            <label>Inquiry Type *</label>
+
+            <select
+              name="inquiry_type"
+              required
+            >
+              <option value="general">
+                General Question
+              </option>
+
+              <option value="customized_tour">
+                Customized Tour
+              </option>
+
+              <option value="group_tour">
+                Group Tour
+              </option>
+
+              <option value="price_quotation">
+                Price Quotation
+              </option>
+            </select>
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Full Name *</label>
+
+            <input
+              type="text"
+              name="customer_name"
+              value="{{ current_user.name if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Email *</label>
+
+            <input
+              type="email"
+              name="customer_email"
+              value="{{ current_user.email if current_user.is_authenticated else '' }}"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>WhatsApp Number *</label>
+
+            <input
+              type="tel"
+              name="customer_phone"
+              value="{{ current_user.phone or '' if current_user.is_authenticated else '' }}"
+              placeholder="+92 300 1234567"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Preferred Date</label>
+
+            <input
+              type="date"
+              name="preferred_date"
+              data-future-date
+            >
+          </div>
+
+          <div class="inquiry-field">
+            <label>Travelers *</label>
+
+            <input
+              type="number"
+              name="travelers"
+              value="1"
+              min="1"
+              max="50"
+              required
+            >
+          </div>
+
+          <div class="inquiry-field full">
+            <label>Your Question *</label>
+
+            <textarea
+              name="message"
+              rows="4"
+              placeholder="Write your question or requirements..."
+              required
+            ></textarea>
+          </div>
+
+        </div>
+
+        <button
+          type="submit"
+          class="submit-inquiry-button"
+        >
+          Submit Inquiry
+        </button>
+
+      </form>
+
+      <div class="contact-separator">
+        <span>or send a quick message</span>
+      </div>
+
+      <a
+        href="#"
+        class="contact-action whatsapp-action"
+        data-whatsapp-link
+        data-message="Hello Capture Pakistan, I have a question about {{ tour.title }}."
+      >
+        Send Inquiry on WhatsApp
+      </a>
+
+    </div>
+  </div>
+
+</aside>
+
+
+    </div>
+
+  </div>
+
+</section>
+
+{% include "tours/_reviews_section.html" %}
+
+{% if related_tours %}
+
+  <section class="related-tours">
+
+    <div class="page-container">
+
+      <div class="related-heading">
+
+        <div>
+          <span>More Adventures</span>
+          <h2>You May Also Like</h2>
+        </div>
+
+        <a href="{{ url_for('public.public_tours') }}">
+          View All Tours
+        </a>
+
+      </div>
+
+      <div class="related-grid">
+
+        {% for related in related_tours %}
+
+          <article class="related-card">
+
+            <a href="{{ url_for('public.tour_detail', slug=related.slug) }}">
+
+              {% if related.main_image %}
+                <img
+                  src="{{ related.main_image }}"
+                  alt="{{ related.title }}"
+                >
+              {% else %}
+                <div class="related-placeholder">⛰</div>
+              {% endif %}
+
+            </a>
+
+            <div>
+
+              <span>
+                {{ related.category.name if related.category else "Tour" }}
+              </span>
+
+              <h3>
+                <a href="{{ url_for('public.tour_detail', slug=related.slug) }}">
+                  {{ related.title }}
+                </a>
+              </h3>
+
+              <p>
+                {{ related.duration_days }} Days ·
+                PKR {{ "{:,.0f}".format(related.base_price or 0) }}
+              </p>
+
+            </div>
+
+          </article>
+
+        {% endfor %}
+
+      </div>
+
+    </div>
+
+  </section>
+
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/tour-gallery.js') }}"
+></script>
+
+<script
+  src="{{ url_for('static', filename='js/wishlist.js') }}"
+></script>
+
+<script
+  src="{{ url_for('static', filename='js/tour-detail.js') }}"
+></script>
+{% endblock %}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{{ error_code }} - {{ error_title }}</title>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/security-errors.css') }}"
+  >
+</head>
+<body>
+  <main class="security-error-card">
+    <span class="security-error-code">
+      {{ error_code }}
+    </span>
+
+    <h1>{{ error_title }}</h1>
+
+    <p>{{ error_message }}</p>
+
+    <div class="security-error-actions">
+      <a href="/" class="primary">
+        Go to Homepage
+      </a>
+
+      <a href="/tours">
+        Browse Tours
+      </a>
+    </div>
+  </main>
+</body>
+</html>

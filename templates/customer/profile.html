@@ -1,0 +1,445 @@
+{% extends "public/base.html" %}
+
+{% block title %}
+My Profile | Capture Pakistan
+{% endblock %}
+
+{% block meta_description %}
+Manage your Capture Pakistan customer profile and account security.
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/customer-profile.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<section class="profile-page">
+
+  <div class="page-container">
+
+    <div class="profile-page-header">
+
+      <div>
+        <span class="profile-eyebrow">
+          Customer Account
+        </span>
+
+        <h1>My Profile</h1>
+
+        <p>
+          Keep your contact information accurate
+          and protect your account.
+        </p>
+      </div>
+
+      <a
+        href="{{ url_for('customer.dashboard') }}"
+        class="profile-back-button"
+      >
+        ← Back to Dashboard
+      </a>
+
+    </div>
+
+    <section class="profile-hero">
+
+      <div class="profile-large-avatar">
+        {{ current_user.name[0] | upper }}
+      </div>
+
+      <div class="profile-identity">
+
+        <span>Capture Pakistan Member</span>
+
+        <h2>{{ current_user.name }}</h2>
+
+        <p>{{ current_user.email }}</p>
+
+        <div class="profile-member-meta">
+
+          <span>
+            Member since
+            {{ current_user.created_at.strftime('%B %Y') }}
+          </span>
+
+          <span>
+            Customer account
+          </span>
+
+        </div>
+
+      </div>
+
+      <div class="profile-completion">
+
+        <strong>Account Ready</strong>
+
+        <p>
+          Your profile is active and ready for bookings.
+        </p>
+
+      </div>
+
+    </section>
+
+    <section class="profile-stat-grid">
+
+      <article>
+        <span class="profile-stat-icon">▣</span>
+
+        <div>
+          <strong>
+            {{ profile_stats.total_bookings }}
+          </strong>
+
+          <p>Total Bookings</p>
+        </div>
+      </article>
+
+      <article>
+        <span class="profile-stat-icon">◷</span>
+
+        <div>
+          <strong>
+            {{ profile_stats.upcoming_bookings }}
+          </strong>
+
+          <p>Upcoming Tours</p>
+        </div>
+      </article>
+
+      <article>
+        <span class="profile-stat-icon">?</span>
+
+        <div>
+          <strong>
+            {{ profile_stats.total_inquiries }}
+          </strong>
+
+          <p>Tour Inquiries</p>
+        </div>
+      </article>
+
+    </section>
+
+    <div class="profile-layout">
+
+      <main class="profile-main-column">
+
+        <section class="profile-card" id="personal-information">
+
+          <div class="profile-card-heading">
+
+            <span class="profile-section-number">
+              01
+            </span>
+
+            <div>
+              <h2>Personal Information</h2>
+
+              <p>
+                These details are used for bookings
+                and communication with our travel team.
+              </p>
+            </div>
+
+          </div>
+
+          <form
+            method="POST"
+            action="{{ url_for('customer.profile') }}"
+            class="profile-form"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="profile-field">
+
+              <label for="profileName">
+                Full Name
+              </label>
+
+              <input
+                type="text"
+                id="profileName"
+                name="name"
+                value="{{ current_user.name }}"
+                maxlength="120"
+                autocomplete="name"
+                required
+              >
+
+            </div>
+
+            <div class="profile-field">
+
+              <label for="profilePhone">
+                Phone / WhatsApp Number
+              </label>
+
+              <input
+                type="tel"
+                id="profilePhone"
+                name="phone"
+                value="{{ current_user.phone or '' }}"
+                maxlength="30"
+                placeholder="+92 300 1234567"
+                autocomplete="tel"
+                required
+              >
+
+            </div>
+
+            <div class="profile-field full">
+
+              <label for="profileEmail">
+                Email Address
+              </label>
+
+              <input
+                type="email"
+                id="profileEmail"
+                value="{{ current_user.email }}"
+                readonly
+                aria-readonly="true"
+              >
+
+              <small>
+                Email changes are disabled for security.
+                Contact support when you need to change it.
+              </small>
+
+            </div>
+
+            <div class="profile-form-actions">
+
+              <button
+                type="submit"
+                class="profile-primary-button"
+              >
+                Save Profile Changes
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+        <section
+          class="profile-card"
+          id="security"
+        >
+
+          <div class="profile-card-heading">
+
+            <span class="profile-section-number">
+              02
+            </span>
+
+            <div>
+              <h2>Password & Security</h2>
+
+              <p>
+                Use a unique password that you do not
+                use on another website.
+              </p>
+            </div>
+
+          </div>
+
+          <form
+            method="POST"
+            action="{{ url_for('customer.change_password') }}"
+            class="profile-form"
+          >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="profile-field full">
+
+              <label for="currentPassword">
+                Current Password
+              </label>
+
+              <div class="profile-password-wrap">
+
+                <input
+                  type="password"
+                  id="currentPassword"
+                  name="current_password"
+                  autocomplete="current-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  data-password-toggle="currentPassword"
+                >
+                  Show
+                </button>
+
+              </div>
+
+            </div>
+
+            <div class="profile-field">
+
+              <label for="newPassword">
+                New Password
+              </label>
+
+              <div class="profile-password-wrap">
+
+                <input
+                  type="password"
+                  id="newPassword"
+                  name="new_password"
+                  minlength="8"
+                  autocomplete="new-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  data-password-toggle="newPassword"
+                >
+                  Show
+                </button>
+
+              </div>
+
+              <small>
+                Minimum 8 characters.
+              </small>
+
+            </div>
+
+            <div class="profile-field">
+
+              <label for="confirmPassword">
+                Confirm New Password
+              </label>
+
+              <div class="profile-password-wrap">
+
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirm_password"
+                  minlength="8"
+                  autocomplete="new-password"
+                  required
+                >
+
+                <button
+                  type="button"
+                  data-password-toggle="confirmPassword"
+                >
+                  Show
+                </button>
+
+              </div>
+
+            </div>
+
+            <div class="profile-form-actions">
+
+              <button
+                type="submit"
+                class="profile-primary-button"
+              >
+                Change Password
+              </button>
+
+            </div>
+
+          </form>
+
+        </section>
+
+      </main>
+
+      <aside class="profile-side-column">
+
+        <section class="profile-card profile-shortcuts">
+
+          <h2>Account Shortcuts</h2>
+
+          <a href="{{ url_for('customer.dashboard') }}">
+            <span>▦</span>
+
+            <div>
+              <strong>Dashboard</strong>
+              <small>Account overview</small>
+            </div>
+
+            <b>→</b>
+          </a>
+
+          <a href="{{ url_for('customer.bookings') }}">
+            <span>▣</span>
+
+            <div>
+              <strong>My Bookings</strong>
+              <small>View your reservations</small>
+            </div>
+
+            <b>→</b>
+          </a>
+
+          <a href="{{ url_for('public.public_tours') }}">
+            <span>⛰</span>
+
+            <div>
+              <strong>Explore Tours</strong>
+              <small>Plan your next journey</small>
+            </div>
+
+            <b>→</b>
+          </a>
+
+        </section>
+
+        <section class="profile-card profile-help-card">
+
+          <span>Need help?</span>
+
+          <h2>Contact Our Travel Team</h2>
+
+          <p>
+            Contact us when you need help with
+            your account or an existing booking.
+          </p>
+
+          <a
+            href="https://wa.me/923271125667"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Contact on WhatsApp
+          </a>
+
+        </section>
+
+      </aside>
+
+    </div>
+
+  </div>
+
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+  src="{{ url_for('static', filename='js/customer-profile.js') }}"
+></script>
+
+{% endblock %}

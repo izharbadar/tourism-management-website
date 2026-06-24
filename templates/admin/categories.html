@@ -1,0 +1,168 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Categories{% endblock %}
+
+{% block page_title %}Tour Categories{% endblock %}
+
+{% block page_subtitle %}
+Organize family, trekking, adventure and other tours
+{% endblock %}
+
+{% block content %}
+
+<div class="grid-two">
+
+  <section class="page-card">
+
+    <div class="section-title">
+      <h2>Add Category</h2>
+      <p>Create a new tour category</p>
+    </div>
+
+    <form
+      action="{{ url_for('admin.add_category') }}"
+      method="POST"
+      class="form-grid"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-field full">
+        <label>Category Name *</label>
+
+        <input
+          type="text"
+          name="name"
+          placeholder="Trekking & Expeditions"
+          required
+        >
+      </div>
+
+      <div class="form-field full">
+        <label>Icon</label>
+
+        <input
+          type="text"
+          name="icon"
+          placeholder="⛰"
+        >
+      </div>
+
+      <div class="form-field full">
+        <label>Description</label>
+
+        <textarea
+          name="description"
+          placeholder="Short category description..."
+        ></textarea>
+      </div>
+
+      <label class="checkbox-field">
+        <input
+          type="checkbox"
+          name="is_active"
+          checked
+        >
+
+        Active category
+      </label>
+
+      <div class="form-field full">
+        <button class="primary-button" type="submit">
+          Add Category
+        </button>
+      </div>
+
+    </form>
+
+  </section>
+
+  <section class="page-card">
+
+    <div class="section-title">
+      <h2>All Categories</h2>
+      <p>{{ categories|length }} categories available</p>
+    </div>
+
+    {% if categories %}
+
+      <div class="table-wrapper">
+
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Slug</th>
+              <th>Tours</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {% for category in categories %}
+
+              <tr>
+                <td>
+                  {{ category.icon or "▤" }}
+                  <strong>{{ category.name }}</strong>
+                </td>
+
+                <td>{{ category.slug }}</td>
+
+                <td>{{ category.tours|length }}</td>
+
+                <td>
+                  <span class="status-badge status-{{ 'active' if category.is_active else 'inactive' }}">
+                    {{ "Active" if category.is_active else "Inactive" }}
+                  </span>
+                </td>
+
+                <td>
+                  <div class="actions">
+
+                    <a
+                      href="{{ url_for('admin.edit_category', category_id=category.id) }}"
+                      class="secondary-button"
+                    >
+                      Edit
+                    </a>
+
+                    <form
+                      action="{{ url_for('admin.delete_category', category_id=category.id) }}"
+                      method="POST"
+                      data-confirm="Delete this category?"
+                    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button
+                        type="submit"
+                        class="danger-button"
+                      >
+                        Delete
+                      </button>
+                    </form>
+
+                  </div>
+                </td>
+              </tr>
+
+            {% endfor %}
+
+          </tbody>
+        </table>
+
+      </div>
+
+    {% else %}
+
+      <div class="empty-state">
+        No categories found.
+      </div>
+
+    {% endif %}
+
+  </section>
+
+</div>
+
+{% endblock %}

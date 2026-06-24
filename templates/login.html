@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>Admin Login | Capture Pakistan</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Poppins", sans-serif;
+      background:
+        linear-gradient(
+          rgba(3, 48, 38, 0.82),
+          rgba(3, 48, 38, 0.82)
+        ),
+        url("https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=1800&q=85")
+        center/cover;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 440px;
+      background: white;
+      padding: 38px;
+      border-radius: 24px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+    }
+
+    .logo {
+      width: 58px;
+      height: 58px;
+      margin-bottom: 20px;
+      border-radius: 18px;
+      background: #0f7b65;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 28px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      color: #10221d;
+    }
+
+    .subtitle {
+      color: #667085;
+      margin-bottom: 28px;
+      font-size: 14px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #34443f;
+    }
+
+    .field input {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid #dfe8e3;
+      border-radius: 13px;
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .field input:focus {
+      border-color: #0f7b65;
+      box-shadow: 0 0 0 4px rgba(15, 123, 101, 0.1);
+    }
+
+    .remember {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 22px;
+      font-size: 14px;
+      color: #667085;
+    }
+
+    .remember input {
+      width: 16px;
+      height: 16px;
+    }
+
+    .login-button {
+      width: 100%;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 13px;
+      background: #0f7b65;
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .login-button:hover {
+      background: #075442;
+    }
+
+    .alert {
+      padding: 13px 15px;
+      margin-bottom: 18px;
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .alert-error {
+      color: #842029;
+      background: #f8d7da;
+      border: 1px solid #f5c2c7;
+    }
+
+    .alert-success {
+      color: #075442;
+      background: #dff5ec;
+      border: 1px solid #b7e5d5;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 22px;
+      color: #0f7b65;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+
+    /* Customer registration prompt */
+
+.register-prompt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+  padding: 14px 15px;
+  background: #f3faf7;
+  border: 1px solid #d9ece4;
+  border-radius: 14px;
+}
+
+.register-prompt-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #e2f2ec;
+  color: #0f7b65;
+  font-size: 17px;
+}
+
+.register-prompt-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.register-prompt-content span {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.register-prompt-content a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0f7b65;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.register-prompt-content a:hover {
+  color: #075442;
+  gap: 9px;
+}
+  </style>
+</head>
+
+<body>
+
+  <div class="login-card">
+
+    <div class="logo">⛰</div>
+
+   <h1>Welcome Back</h1>
+
+<p class="subtitle">
+  Login to manage your account and bookings.
+</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+
+          <div class="alert alert-{{ category }}">
+            {{ message }}
+          </div>
+
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="field">
+        <label for="email">Email Address</label>
+
+        <input
+  type="email"
+  id="email"
+  name="email"
+  placeholder="Enter your email"
+  required
+>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+        >
+      </div>
+      <div class="register-prompt">
+  <div class="register-prompt-icon">👤</div>
+
+  <div class="register-prompt-content">
+    <span>New to Capture Pakistan?</span>
+
+    <a href="{{ url_for('auth.register') }}">
+      Create your customer account
+      <span aria-hidden="true">→</span>
+    </a>
+  </div>
+</div>
+
+      <label class="remember">
+        <input type="checkbox" name="remember">
+        Remember me
+      </label>
+
+      <button class="login-button" type="submit">
+  Login to Your Account
+</button>
+
+<input
+  type="hidden"
+  name="next"
+  value="{{ next_url or '' }}"
+>
+    </form>
+
+    <a href="/" class="back-link">
+      ← Back to Website
+    </a>
+
+  </div>
+
+  <script
+    src="{{ url_for('static', filename='js/security-csrf.js') }}"
+  ></script>
+
+</body>
+</html>

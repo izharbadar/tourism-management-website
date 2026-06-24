@@ -1,0 +1,19 @@
+
+{% extends "emails/base.html" %}
+{% block title %}New Booking{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;color:#c18400;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">New Booking Alert</p>
+<h1 style="margin:0 0 12px;font-size:25px;">{{ booking.booking_number }}</h1>
+<p style="margin:0 0 22px;color:#667085;font-size:14px;line-height:1.7;">Hello {{ recipient.name }}, a new booking has been submitted and requires review.</p>
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f5faf8;border-radius:14px;padding:6px 18px;">
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;">Customer</td><td align="right" style="font-weight:700;">{{ booking.customer_name }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Email</td><td align="right" style="font-weight:700;border-top:1px solid #e1ebe6;">{{ booking.customer_email }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Phone</td><td align="right" style="font-weight:700;border-top:1px solid #e1ebe6;">{{ booking.customer_phone or 'Not provided' }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Tour</td><td align="right" style="font-weight:700;border-top:1px solid #e1ebe6;">{{ booking.tour_name }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Travel date</td><td align="right" style="font-weight:700;border-top:1px solid #e1ebe6;">{{ booking.travel_date.strftime('%d %B %Y') }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Total</td><td align="right" style="font-weight:800;color:#064f40;border-top:1px solid #e1ebe6;">PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Advance / Paid</td><td align="right" style="font-weight:700;color:#067647;border-top:1px solid #e1ebe6;">PKR {{ "{:,.0f}".format(booking.paid_amount or 0) }}</td></tr>
+  <tr><td style="padding:10px 0;color:#667085;font-size:12px;border-top:1px solid #e1ebe6;">Balance Due</td><td align="right" style="font-weight:800;color:#b54708;border-top:1px solid #e1ebe6;">PKR {{ "{:,.0f}".format(booking.balance_amount or 0) }}</td></tr>
+</table>
+<p style="margin:24px 0 0;"><a href="{{ admin_booking_url }}" style="display:inline-block;padding:13px 20px;border-radius:10px;background:#064f40;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;">Open Booking in Admin</a></p>
+{% endblock %}

@@ -1,0 +1,8 @@
+
+{% extends "emails/base.html" %}
+{% block title %}Email Test{% endblock %}
+{% block content %}
+<p style="margin:0 0 8px;color:#12a66a;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;">Configuration Test</p>
+<h1 style="margin:0 0 12px;font-size:25px;">Email delivery is working</h1>
+<p style="margin:0;color:#667085;font-size:14px;line-height:1.7;">Hello {{ recipient.name }}, this test confirms that {{ recipient.email }} can receive Capture Pakistan notifications.</p>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Edit Category{% endblock %}
+
+{% block page_title %}Edit Category{% endblock %}
+
+{% block page_subtitle %}
+Update category information
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('admin.categories') }}"
+  class="secondary-button"
+>
+  Back to Categories
+</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="page-card">
+
+  <form method="POST" class="form-grid">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div class="form-field">
+      <label>Category Name *</label>
+
+      <input
+        type="text"
+        name="name"
+        value="{{ category.name }}"
+        required
+      >
+    </div>
+
+    <div class="form-field">
+      <label>Icon</label>
+
+      <input
+        type="text"
+        name="icon"
+        value="{{ category.icon or '' }}"
+      >
+    </div>
+
+    <div class="form-field full">
+      <label>Description</label>
+
+      <textarea name="description">{{ category.description or '' }}</textarea>
+    </div>
+
+    <label class="checkbox-field">
+      <input
+        type="checkbox"
+        name="is_active"
+        {% if category.is_active %}checked{% endif %}
+      >
+
+      Active category
+    </label>
+
+    <div class="form-field full">
+      <button class="primary-button" type="submit">
+        Save Changes
+      </button>
+    </div>
+
+  </form>
+
+</section>
+
+{% endblock %}

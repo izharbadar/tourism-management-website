@@ -1,0 +1,174 @@
+{% extends "public/base.html" %}
+
+{% block title %}Trekking & Expeditions in Pakistan | {{ site_settings.site_name }}{% endblock %}
+
+{% block meta_description %}
+Discover guided trekking tours, lake hikes and mountain expeditions across Pakistan with carefully planned itineraries and local support.
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/public-trekking-page.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+
+
+<section class="trekking-list-section" id="trekkingTours">
+  <div class="trekking-page-container">
+    <div class="trekking-list-heading">
+      <div>
+        <span class="trekking-kicker dark">CHOOSE YOUR ADVENTURE</span>
+        <h2>Trekking Tours</h2>
+      </div>
+
+      <form method="GET" action="{{ url_for('public.trekking') }}" class="trekking-filter-form">
+        <label>
+          <span>Destination</span>
+          <select name="destination">
+            <option value="">All destinations</option>
+            {% for destination in destinations %}
+              <option
+                value="{{ destination }}"
+                {% if selected_destination == destination %}selected{% endif %}
+              >
+                {{ destination }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          <span>Sort tours</span>
+          <select name="sort">
+            <option value="featured" {% if selected_sort == 'featured' %}selected{% endif %}>Featured first</option>
+            <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest first</option>
+            <option value="duration" {% if selected_sort == 'duration' %}selected{% endif %}>Shortest duration</option>
+            <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: low to high</option>
+            <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: high to low</option>
+          </select>
+        </label>
+
+        <button type="submit">Apply Filters</button>
+      </form>
+    </div>
+
+    {% if tours %}
+      <div class="trekking-tour-grid">
+        {% for tour in tours %}
+          <article class="trekking-tour-card">
+            <a
+              href="{{ url_for('public.tour_detail', slug=tour.slug) }}"
+              class="trekking-tour-image"
+            >
+              {% if tour.main_image %}
+                <img src="{{ tour.main_image }}" alt="{{ tour.title }}" loading="lazy">
+              {% else %}
+                <img src="{{ url_for('static', filename='images/laila-peak.jpg') }}" alt="{{ tour.title }}" loading="lazy">
+              {% endif %}
+
+              <span class="trekking-card-shade"></span>
+
+              <span class="trekking-duration-pill">
+                ◷ {{ tour.duration_days }} Days
+              </span>
+
+              {% if tour.is_featured %}
+                <span class="trekking-featured-pill">★ Featured</span>
+              {% endif %}
+            </a>
+
+            <div class="trekking-tour-body">
+              <div class="trekking-card-location">
+                <span>●</span>
+                {{ tour.destination }}
+              </div>
+
+              <h3>
+                <a href="{{ url_for('public.tour_detail', slug=tour.slug) }}">
+                  {{ tour.title }}
+                </a>
+              </h3>
+
+              <p>
+                {{ (tour.short_description or 'A guided trekking experience through some of Pakistan’s most beautiful mountain landscapes.') | truncate(135, True, '…') }}
+              </p>
+
+              <div class="trekking-card-features">
+                <span>◆ Guided</span>
+                <span>⌁ Local Support</span>
+                <span>✓ Planned Route</span>
+              </div>
+
+              <div class="trekking-card-footer">
+                <div>
+                  <small>Starting from</small>
+                  <strong>
+                    {{ site_settings.currency_symbol or 'PKR' }}
+                    {{ "{:,.0f}".format(tour.base_price or 0) }}
+                  </strong>
+                </div>
+
+                <a href="{{ url_for('public.tour_detail', slug=tour.slug) }}">
+                  View Tour →
+                </a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="trekking-empty-public">
+        <span>△</span>
+        <h3>No trekking tours match these filters</h3>
+        <p>
+          Try another destination or ask our team to create a custom expedition.
+        </p>
+        <div>
+          <a href="{{ url_for('public.trekking') }}">Clear Filters</a>
+          <a href="{{ url_for('public.contact') }}" class="secondary">Request a Custom Trek</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<section class="trekking-trust-section">
+  <div class="trekking-page-container">
+    <div class="trekking-trust-heading">
+      <span class="trekking-kicker">WHY TREK WITH US</span>
+      <h2>Adventure, with the planning taken seriously</h2>
+    </div>
+
+    <div class="trekking-trust-grid">
+      <article>
+        <span>01</span>
+        <h3>Locally Planned Routes</h3>
+        <p>Itineraries built around terrain, road conditions and realistic travel times.</p>
+      </article>
+
+      <article>
+        <span>02</span>
+        <h3>Reliable Trip Support</h3>
+        <p>Clear coordination before departure and responsive help throughout the journey.</p>
+      </article>
+
+      <article>
+        <span>03</span>
+        <h3>Private & Group Options</h3>
+        <p>Choose a published departure or request a custom expedition for your group.</p>
+      </article>
+
+      <article>
+        <span>04</span>
+        <h3>Responsible Travel</h3>
+        <p>Respect for local communities, landscapes and the places that make every trek special.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

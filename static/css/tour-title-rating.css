@@ -1,0 +1,161 @@
+.tour-title-rating-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 14px 0 9px;
+  color: #47534f;
+  font-family: "DM Sans", sans-serif;
+}
+
+.tour-title-rating-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tour-title-rating-main:hover {
+  color: #075442;
+}
+
+.tour-title-stars {
+  position: relative;
+  display: inline-block;
+  width: 104px;
+  height: 23px;
+  overflow: hidden;
+  font-size: 21px;
+  line-height: 23px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.tour-title-stars-background,
+.tour-title-stars-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.tour-title-stars-background {
+  color: #d8dfdc;
+}
+
+.tour-title-stars-fill {
+  overflow: hidden;
+  color: #00aa84;
+  white-space: nowrap;
+}
+
+.tour-title-rating-number {
+  color: #172a24;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.tour-title-review-count {
+  color: #24342e;
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tour-title-rating-divider {
+  width: 1px;
+  height: 27px;
+  background: #cfd7d3;
+}
+
+.tour-title-recommended,
+.tour-title-excellence,
+.tour-title-destination {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #4e5854;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tour-title-recommended strong {
+  color: #25352f;
+  font-weight: 800;
+}
+
+.tour-title-recommended-icon {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #ffffff;
+  background: #ec5b3d;
+  font-size: 12px;
+}
+
+.tour-title-excellence > span {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #16372e;
+  background: #f1b24b;
+  font-size: 13px;
+}
+
+.tour-title-excellence strong {
+  color: #4c5652;
+  font-size: 12px;
+}
+
+.tour-title-destination i {
+  color: #075442;
+}
+
+@media (max-width: 920px) {
+  .tour-title-rating-bar {
+    gap: 10px;
+  }
+
+  .tour-title-rating-divider.desktop-only {
+    display: none;
+  }
+
+  .tour-title-excellence,
+  .tour-title-destination {
+    width: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .tour-title-rating-bar {
+    align-items: flex-start;
+    margin-top: 12px;
+  }
+
+  .tour-title-rating-main {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .tour-title-rating-divider {
+    display: none;
+  }
+
+  .tour-title-recommended,
+  .tour-title-excellence,
+  .tour-title-destination {
+    width: 100%;
+  }
+
+  .tour-title-stars {
+    width: 94px;
+    height: 21px;
+    font-size: 19px;
+    line-height: 21px;
+  }
+}

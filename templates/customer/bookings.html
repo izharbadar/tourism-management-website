@@ -1,0 +1,120 @@
+{% extends "public/base.html" %}
+
+{% block title %}My Bookings | Capture Pakistan{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/booking-system.css') }}"
+>
+{% endblock %}
+
+{% block content %}
+
+<section class="booking-page">
+  <div class="page-container">
+
+    <div class="booking-page-header">
+      <div>
+        <h1>My Bookings</h1>
+        <p>Review and manage your Capture Pakistan reservations.</p>
+      </div>
+
+      <a
+        href="{{ url_for('public.public_tours') }}"
+        class="header-register"
+      >
+        Explore Tours
+      </a>
+    </div>
+
+    <div class="booking-filters">
+      <a
+        href="{{ url_for('customer.bookings') }}"
+        class="{% if not selected_status %}active{% endif %}"
+      >
+        All
+      </a>
+
+      {% for status in ['pending', 'confirmed', 'completed', 'cancelled'] %}
+        <a
+          href="{{ url_for('customer.bookings', status=status) }}"
+          class="{% if selected_status == status %}active{% endif %}"
+        >
+          {{ status|title }}
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if bookings %}
+
+      <div class="customer-booking-list">
+
+        {% for booking in bookings %}
+
+          <article class="customer-booking-card">
+
+            {% if booking.tour.main_image %}
+              <img
+                src="{{ booking.tour.main_image }}"
+                alt="{{ booking.tour.title }}"
+              >
+            {% else %}
+              <div class="booking-image-placeholder">⛰</div>
+            {% endif %}
+
+            <div>
+              <span class="booking-reference">
+                {{ booking.booking_number }}
+              </span>
+
+              <h2>{{ booking.tour.title }}</h2>
+
+              <div class="booking-card-meta">
+                <span>📅 {{ booking.travel_date.strftime('%d %b %Y') }}</span>
+                <span>👥 {{ booking.total_travelers }} travelers</span>
+                <span class="booking-status status-{{ booking.booking_status }}">
+                  {{ booking.booking_status }}
+                </span>
+                <span class="payment-status payment-{{ booking.payment_status }}">
+                  {{ booking.payment_status }}
+                </span>
+              </div>
+            </div>
+
+            <div class="booking-card-total">
+              <strong>
+                PKR {{ "{:,.0f}".format(booking.total_amount or 0) }}
+              </strong>
+
+              <a
+                href="{{ url_for('customer.booking_detail', booking_number=booking.booking_number) }}"
+              >
+                View Booking
+              </a>
+            </div>
+
+          </article>
+
+        {% endfor %}
+
+      </div>
+
+    {% else %}
+
+      <div class="empty-bookings">
+        <div>▣</div>
+        <h2>No bookings found</h2>
+        <p>Your tour reservations will appear here.</p>
+
+        <a href="{{ url_for('public.public_tours') }}">
+          Browse Tours
+        </a>
+      </div>
+
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

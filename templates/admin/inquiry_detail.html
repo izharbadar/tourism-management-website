@@ -1,0 +1,191 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Inquiry Details{% endblock %}
+
+{% block page_title %}Inquiry Details{% endblock %}
+
+{% block page_subtitle %}
+{{ inquiry.inquiry_number }} · {{ inquiry.customer_name }}
+{% endblock %}
+
+{% block top_actions %}
+
+<a
+  href="{{ url_for('admin.inquiries') }}"
+  class="secondary-button"
+>
+  Back to Inquiries
+</a>
+
+{% endblock %}
+
+{% block extra_css %}
+
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/inquiry-system.css') }}"
+>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="inquiry-detail-layout">
+
+  <section class="page-card">
+
+    <div class="section-title">
+      <h2>Customer Inquiry</h2>
+      <p>{{ inquiry.inquiry_number }}</p>
+    </div>
+
+    <div class="inquiry-info-grid">
+
+      <div class="inquiry-info-item">
+        <small>Customer</small>
+        <strong>{{ inquiry.customer_name }}</strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Email</small>
+        <strong>{{ inquiry.customer_email }}</strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>WhatsApp</small>
+        <strong>{{ inquiry.customer_phone }}</strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Tour</small>
+        <strong>{{ inquiry.tour.title }}</strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Inquiry Type</small>
+
+        <strong>
+          {{ inquiry.inquiry_type.replace('_', ' ')|title }}
+        </strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Travelers</small>
+        <strong>{{ inquiry.travelers }}</strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Preferred Date</small>
+
+        <strong>
+          {% if inquiry.preferred_date %}
+            {{ inquiry.preferred_date.strftime('%d %B %Y') }}
+          {% else %}
+            Flexible
+          {% endif %}
+        </strong>
+      </div>
+
+      <div class="inquiry-info-item">
+        <small>Submitted</small>
+
+        <strong>
+          {{ inquiry.created_at.strftime('%d %B %Y, %I:%M %p') }}
+        </strong>
+      </div>
+
+    </div>
+
+    <div class="inquiry-message-box">
+      <small>Customer Message</small>
+      <p>{{ inquiry.message }}</p>
+    </div>
+
+    <div class="inquiry-contact-actions">
+
+      <a
+        href="https://wa.me/{{ inquiry.customer_phone|replace('+', '')|replace(' ', '')|replace('-', '')|replace('(', '')|replace(')', '') }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inquiry-whatsapp-button"
+      >
+        Contact on WhatsApp
+      </a>
+
+      <a
+        href="mailto:{{ inquiry.customer_email }}?subject=Capture Pakistan Inquiry {{ inquiry.inquiry_number }}"
+        class="inquiry-email-button"
+      >
+        Send Email
+      </a>
+
+    </div>
+
+  </section>
+
+  <section class="page-card">
+
+    <div class="section-title">
+      <h2>Manage Inquiry</h2>
+      <p>Update progress and internal notes</p>
+    </div>
+
+    <form
+      method="POST"
+      action="{{ url_for('admin.update_inquiry', inquiry_id=inquiry.id) }}"
+      class="inquiry-admin-update"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <div class="form-field">
+
+        <label>Inquiry Status</label>
+
+        <select name="inquiry_status">
+
+          {% for status in [
+            'new',
+            'contacted',
+            'quotation_sent',
+            'converted',
+            'closed'
+          ] %}
+
+            <option
+              value="{{ status }}"
+              {% if inquiry.inquiry_status == status %}selected{% endif %}
+            >
+              {{ status.replace('_', ' ')|title }}
+            </option>
+
+          {% endfor %}
+
+        </select>
+
+      </div>
+
+      <div class="form-field">
+
+        <label>Admin Notes</label>
+
+        <textarea
+          name="admin_notes"
+          placeholder="Internal follow-up notes..."
+        >{{ inquiry.admin_notes or '' }}</textarea>
+
+      </div>
+
+      <button
+        type="submit"
+        class="primary-button"
+      >
+        Save Inquiry Changes
+      </button>
+
+    </form>
+
+  </section>
+
+</div>
+
+{% endblock %}

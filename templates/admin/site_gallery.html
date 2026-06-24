@@ -1,0 +1,355 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Website Gallery{% endblock %}
+
+{% block page_title %}Website Gallery{% endblock %}
+
+{% block page_subtitle %}
+Upload, organize and publish travel photos on the public gallery page
+{% endblock %}
+
+{% block extra_css %}
+<link
+  rel="stylesheet"
+  href="{{ url_for('static', filename='css/admin-site-gallery.css') }}"
+>
+{% endblock %}
+
+{% block top_actions %}
+<a
+  href="{{ url_for('public.gallery_page') }}"
+  class="secondary-button"
+  target="_blank"
+  rel="noopener noreferrer"
+>
+  View Public Gallery ↗
+</a>
+{% endblock %}
+
+{% block content %}
+
+<section class="gallery-admin-stats">
+  <article>
+    <span>▦</span>
+    <div>
+      <small>Total Images</small>
+      <strong>{{ stats.total }}</strong>
+    </div>
+  </article>
+
+  <article>
+    <span>✓</span>
+    <div>
+      <small>Published</small>
+      <strong>{{ stats.active }}</strong>
+    </div>
+  </article>
+
+  <article>
+    <span>★</span>
+    <div>
+      <small>Featured</small>
+      <strong>{{ stats.featured }}</strong>
+    </div>
+  </article>
+
+  <article>
+    <span>◌</span>
+    <div>
+      <small>Hidden</small>
+      <strong>{{ stats.hidden }}</strong>
+    </div>
+  </article>
+</section>
+
+<section class="gallery-admin-layout">
+
+  <aside class="gallery-upload-card">
+    <div class="gallery-card-heading">
+      <span>＋</span>
+      <div>
+        <h2>Add Gallery Photos</h2>
+        <p>Upload one or several images at once.</p>
+      </div>
+    </div>
+
+    <form
+      method="POST"
+      action="{{ url_for('admin.upload_site_gallery_images') }}"
+      enctype="multipart/form-data"
+      class="gallery-upload-form"
+    >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label
+        class="gallery-drop-zone"
+        data-gallery-drop-zone
+      >
+        <input
+          type="file"
+          name="gallery_images"
+          accept=".jpg,.jpeg,.png,.webp"
+          multiple
+          required
+          data-gallery-file-input
+        >
+
+        <span class="drop-zone-icon">▧</span>
+        <strong>Choose or drop images here</strong>
+        <small>JPG, PNG or WEBP — maximum 8 MB each</small>
+        <em data-gallery-file-count>No files selected</em>
+      </label>
+
+      <label class="gallery-field">
+        <span>Title</span>
+        <input
+          type="text"
+          name="title"
+          maxlength="180"
+          placeholder="Used when uploading one image"
+        >
+      </label>
+
+      <div class="gallery-form-grid">
+        <label class="gallery-field">
+          <span>Category</span>
+          <input
+            type="text"
+            name="category"
+            maxlength="100"
+            placeholder="Mountains, Culture, Lakes..."
+            list="galleryCategoryOptions"
+          >
+        </label>
+
+        <label class="gallery-field">
+          <span>Location</span>
+          <input
+            type="text"
+            name="location"
+            maxlength="160"
+            placeholder="Hunza Valley"
+          >
+        </label>
+      </div>
+
+      <label class="gallery-field">
+        <span>Caption</span>
+        <textarea
+          name="caption"
+          rows="3"
+          maxlength="700"
+          placeholder="A short story or description for the photos"
+        ></textarea>
+      </label>
+
+      <label class="gallery-field">
+        <span>Image Alt Text</span>
+        <input
+          type="text"
+          name="alt_text"
+          maxlength="180"
+          placeholder="SEO-friendly image description"
+        >
+      </label>
+
+      <label class="gallery-check">
+        <input
+          type="checkbox"
+          name="is_featured"
+        >
+        <span>
+          <strong>Mark as featured</strong>
+          <small>Featured photos appear first.</small>
+        </span>
+      </label>
+
+      <button
+        type="submit"
+        class="gallery-upload-button"
+      >
+        Upload Gallery Photos
+        <span>→</span>
+      </button>
+    </form>
+  </aside>
+
+  <main class="gallery-manager-card">
+    <div class="gallery-manager-heading">
+      <div>
+        <h2>Manage Gallery</h2>
+        <p>Change visibility, feature photos and control their order.</p>
+      </div>
+
+      <span class="gallery-results-count">
+        {{ images | length }} result{% if images | length != 1 %}s{% endif %}
+      </span>
+    </div>
+
+    <form
+      method="GET"
+      action="{{ url_for('admin.site_gallery') }}"
+      class="gallery-filter-bar"
+    >
+      <input
+        type="search"
+        name="search"
+        value="{{ search }}"
+        placeholder="Search title, category or location"
+      >
+
+      <select name="category">
+        <option value="">All categories</option>
+        {% for category in categories %}
+          <option
+            value="{{ category }}"
+            {% if selected_category == category %}selected{% endif %}
+          >
+            {{ category }}
+          </option>
+        {% endfor %}
+      </select>
+
+      <select name="status">
+        <option value="all" {% if selected_status == 'all' %}selected{% endif %}>All statuses</option>
+        <option value="active" {% if selected_status == 'active' %}selected{% endif %}>Published</option>
+        <option value="featured" {% if selected_status == 'featured' %}selected{% endif %}>Featured</option>
+        <option value="hidden" {% if selected_status == 'hidden' %}selected{% endif %}>Hidden</option>
+      </select>
+
+      <button type="submit">Filter</button>
+
+      {% if search or selected_category or selected_status != 'all' %}
+        <a href="{{ url_for('admin.site_gallery') }}">Reset</a>
+      {% endif %}
+    </form>
+
+    {% if images %}
+      <div class="gallery-admin-grid">
+        {% for image in images %}
+          <article class="gallery-admin-image-card">
+            <div class="gallery-admin-image">
+              <img
+                src="{{ url_for('static', filename=image.image_path) }}"
+                alt="{{ image.alt_text or image.title or 'Gallery image' }}"
+                loading="lazy"
+              >
+
+              <div class="gallery-card-badges">
+                {% if image.is_featured %}
+                  <span class="featured-badge">★ Featured</span>
+                {% endif %}
+
+                <span class="{% if image.is_active %}active-badge{% else %}hidden-badge{% endif %}">
+                  {% if image.is_active %}Published{% else %}Hidden{% endif %}
+                </span>
+              </div>
+
+              <div class="gallery-order-controls">
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.move_site_gallery_image', image_id=image.id) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="direction" value="up">
+                  <button type="submit" title="Move earlier">↑</button>
+                </form>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.move_site_gallery_image', image_id=image.id) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="direction" value="down">
+                  <button type="submit" title="Move later">↓</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="gallery-admin-card-body">
+              <div class="gallery-card-title-row">
+                <div>
+                  <h3>{{ image.title or 'Untitled Gallery Photo' }}</h3>
+                  <p>
+                    {% if image.location %}{{ image.location }}{% else %}Location not set{% endif %}
+                  </p>
+                </div>
+
+                {% if image.category %}
+                  <span>{{ image.category }}</span>
+                {% endif %}
+              </div>
+
+              {% if image.caption %}
+                <p class="gallery-card-caption">
+                  {{ image.caption | truncate(115, True, '…') }}
+                </p>
+              {% endif %}
+
+              <div class="gallery-card-actions">
+                <a
+                  href="{{ url_for('admin.edit_site_gallery_image', image_id=image.id) }}"
+                >
+                  Edit
+                </a>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.feature_site_gallery_image', image_id=image.id) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit">
+                    {% if image.is_featured %}Unfeature{% else %}Feature{% endif %}
+                  </button>
+                </form>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.toggle_site_gallery_image', image_id=image.id) }}"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit">
+                    {% if image.is_active %}Hide{% else %}Publish{% endif %}
+                  </button>
+                </form>
+
+                <form
+                  method="POST"
+                  action="{{ url_for('admin.delete_site_gallery_image', image_id=image.id) }}"
+                  onsubmit="return confirm('Delete this gallery image permanently?');"
+                >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="danger">Delete</button>
+                </form>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="gallery-admin-empty">
+        <span>▧</span>
+        <h3>No gallery images found</h3>
+        <p>Upload your first photo or change the active filters.</p>
+      </div>
+    {% endif %}
+  </main>
+
+</section>
+
+<datalist id="galleryCategoryOptions">
+  {% for category in categories %}
+    <option value="{{ category }}"></option>
+  {% endfor %}
+  <option value="Mountains"></option>
+  <option value="Trekking"></option>
+  <option value="Lakes"></option>
+  <option value="Culture"></option>
+  <option value="Cities"></option>
+  <option value="Wildlife"></option>
+</datalist>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin-site-gallery.js') }}"></script>
+{% endblock %}
